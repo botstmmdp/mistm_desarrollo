@@ -1216,7 +1216,7 @@
                     <i class="fa-solid fa-message" style="color: #ef4444;"></i>
                 </div>
                 <div style="text-align: left;">
-                   <h4 style="margin: 0; font-size: 0.95rem; font-weight: 800;">Mensaje del STM</h4>
+                   <h4 id="avisoMsgTitle" style="margin: 0; font-size: 0.95rem; font-weight: 800;">Mensaje del STM</h4>
                    <p style="margin: 0; font-size: 0.75rem; color: #94a3b8;">Pulsa la campana para leer</p>
                 </div>
             </div>
@@ -1570,22 +1570,26 @@
             try {
                 const res = await fetch(ADMIN_BACKEND_URL);
                 const data = await res.json();
-                const allMessages = data.MENSAJES || [];
-                
-                // Filtrar mensajes para este usuario
-                userMessages = allMessages.filter(m => String(m.id_user) === String(usrID));
+                userMessages = (data.MENSAJES || []).filter(m => String(m.id_user) === String(usrID));
 
                 const btn = document.getElementById('headerAlertBtn');
                 if (userMessages.length > 0) {
                     btn.classList.add('bell-active');
                     btn.classList.remove('bell-inactive');
+                    
+                    // Si no hay ningún modal activo en este momento, mostrar el aviso
+                    // (Si hay uno activo, closeVigencias se encargará al cerrarse)
+                    setTimeout(() => {
+                        const activeModal = document.querySelector('.search-modal.active');
+                        if (!activeModal && userMessages.length > 0) {
+                            toggleAvisoModal(true);
+                        }
+                    }, 2000);
                 } else {
                     btn.classList.add('bell-inactive');
                     btn.classList.remove('bell-active');
                 }
-            } catch (e) {
-                console.error("Error al verificar mensajes:", e);
-            }
+            } catch (e) { console.error("Error mensajes:", e); }
         }
 
         function verMensajeDesdeAviso() {
@@ -1607,8 +1611,11 @@
                     const isNewest = index === 0;
                     return `
                     <div style="padding: 15px 5px; ${index !== sortedMsgs.length - 1 ? 'border-bottom: 1px solid #f1f5f9;' : ''}">
-                        <small style="color: #6366f1; font-weight: 800; font-size: 0.8rem; display: block; margin-bottom: 6px; text-align: left;">${msgDate}</small>
-                        <p style="margin: 0; color: #1e293b; font-size: 1.05rem; line-height: 1.4; font-weight: ${isNewest ? '800' : '400'}; text-align: left;">${m.mensaje}</p>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px">
+                            <h4 style="margin:0; font-size:0.95rem; font-weight:900; color:var(--text-dark)">${m.titulo || 'Sin Título'}</h4>
+                            <small style="color: #6366f1; font-weight: 800; font-size: 0.75rem;">${msgDate}</small>
+                        </div>
+                        <p style="margin: 0; color: #1e293b; font-size: 1rem; line-height: 1.4; font-weight: ${isNewest ? '600' : '400'}; text-align: left;">${m.mensaje}</p>
                     </div>
                 `}).join('');
                 
@@ -1650,6 +1657,14 @@
         function toggleAvisoModal(show) {
             const modal = document.getElementById('modalAvisoMsg');
             if (show) {
+                // Actualizar título dinámico antes de mostrar
+                if (userMessages && userMessages.length > 0) {
+                    const sorted = [...userMessages].sort((a,b) => Number(b.id_mensaje||0) - Number(a.id_mensaje||0));
+                    const lastTitle = sorted[0]?.titulo || "Mensaje del STM";
+                    const avisoTitleElem = document.getElementById('avisoMsgTitle');
+                    if (avisoTitleElem) avisoTitleElem.innerText = lastTitle;
+                }
+
                 modal.style.display = 'flex';
                 setTimeout(() => {
                     modal.classList.add('active');
@@ -1669,10 +1684,12 @@
             setTimeout(() => {
                 document.getElementById('modalVigencias').style.display = 'none';
                 
-                // Una vez cerrado el recordatorio, si hay mensajes, mostrar aviso
-                if (userMessages.length > 0) {
-                    toggleAvisoModal(true);
-                    if (window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+                // Al cerrar el modal de actividades/recordatorio, mostrar aviso de mensaje si hay
+                if (userMessages && userMessages.length > 0) {
+                    setTimeout(() => {
+                        toggleAvisoModal(true);
+                        if (window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+                    }, 300);
                 }
             }, 600); 
         }
