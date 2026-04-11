@@ -80,11 +80,18 @@
 
     function isFuzzyMatch(word, target) {
         if (target.includes(word)) return true;
+        
+        // NLP natural root extraction (Stemming para español)
+        let root = word.replace(/(miento|amiento|imiento|cion|idad|eria|mente|ando|iendo|as|os|es|s)$/, '');
+        if (root.length >= 4 && target.includes(root)) return true;
+
         if (word.length < 4) return false;
         
         const targetWords = target.split(/\s+/);
         for (let tw of targetWords) {
             if(tw.length < 4) continue;
+            // Inclusión inversa (ej: si el usuario escribe asesoramiento y el target solo tiene asesor)
+            if(word.includes(tw) && tw.length >= 5) return true;
             // 1 typo para palabras cortas (4-5), 2 typos para 6+ letras
             const maxTypos = word.length >= 6 ? 2 : 1;
             if (levenshtein(word, tw) <= maxTypos) return true;
@@ -138,24 +145,29 @@
 
                 searchTimer = setTimeout(() => {
                     res.innerHTML = "";
-                    const words = val.split(" ").filter(w => w.length > 2);
+                    const rawWords = val.split(" ").filter(w => w.length > 2);
+                    const stopWords = ["quiero","necesito","busco","ver","saber","como","donde","de","la","el","los","las","un","una","unos","unas","mi","tu","su","para","con","por","en","hola","bot","stm","que","cual","quien","porfavor","favor"];
+                    const words = rawWords.filter(w => !stopWords.includes(w));
+                    
+                    // Si el usuario escribió puros conectores ("hola busco"), no filtramos todo
+                    const searchTerms = words.length > 0 ? words : rawWords;
                     
                     // Match sitepages
                     const matchedPages = sitePages.filter(p => {
                         const target = normalizeStr(p.t + " " + p.tags + " " + p.d);
-                        return words.every(w => isFuzzyMatch(w, target)) || isFuzzyMatch(val, target);
+                        return searchTerms.every(w => isFuzzyMatch(w, target)) || isFuzzyMatch(val, target);
                     });
                     
                     // Match Convenios
                     const matchedConv = botConvenios.filter(c => {
                         const target = normalizeStr(c.rubro + " " + c.titulo + " " + c.desc);
-                        return words.every(w => isFuzzyMatch(w, target)) || isFuzzyMatch(val, target);
+                        return searchTerms.every(w => isFuzzyMatch(w, target)) || isFuzzyMatch(val, target);
                     });
 
                     // Match Novedades
                     const matchedNews = botNews.filter(n => {
                         const target = normalizeStr(n.titulo + " " + n.desc);
-                        return words.every(w => isFuzzyMatch(w, target)) || isFuzzyMatch(val, target);
+                        return searchTerms.every(w => isFuzzyMatch(w, target)) || isFuzzyMatch(val, target);
                     });
 
                     if (matchedPages.length === 0 && matchedConv.length === 0 && matchedNews.length === 0) {
@@ -202,7 +214,7 @@
                         });
                     }
 
-                }, 600);
+                }, 250); // Búsqueda ultra-rápida de 250ms simulando tiempo real
             });
         }
     });
