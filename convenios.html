@@ -368,42 +368,11 @@
         }
 
         /* --- NAVIGATION --- */
-        .nav-footer {
-            position: fixed;
-            bottom: 25px;
-            bottom: calc(env(safe-area-inset-bottom, 0px) + 25px);
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 40px);
-            max-width: 380px;
-            height: 72px;
-            background: rgba(17, 24, 39, 0.95) !important;
-            backdrop-filter: blur(10px);
-            border-radius: 35px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            z-index: 5000;
-            padding: 0 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
+        
 
-        .nav-link {
-            text-decoration: none;
-            color: #64748b;
-            width: 54px;
-            height: 54px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        
 
-        .nav-link:active {
-            transform: scale(0.9);
-        }
+        
 
         .nav-home-pulse i {
             animation: home-blink 3s infinite ease-in-out;
@@ -606,6 +575,50 @@
         .hidden {
             display: none !important;
         }
+    
+        .bottom-nav {
+            position: fixed;
+            bottom: 25px;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 25px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 380px;
+            height: 72px;
+            background: rgba(17, 24, 39, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-radius: 35px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            z-index: 5000;
+            padding: 0 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-btn {
+            text-decoration: none;
+            color: #64748b;
+            width: 54px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .nav-btn.active {
+            color: white;
+            background: var(--stm-primary);
+            border-radius: 50%;
+            transform: translateY(-12px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.9);
+        }
     </style>
 </head>
 
@@ -650,10 +663,10 @@
         <div class="bot-content">
             <div style="width: 40px; height: 5px; background: #e2e8f0; border-radius: 10px; margin: -10px auto 20px;">
             </div>
-            <div style="position:relative; margin-bottom:15px"><i class="fa-solid fa-robot"
+            <div style="position:relative; margin-bottom:15px; box-sizing: border-box;"><i class="fa-solid fa-robot"
                     style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--stm-primary)"></i><input
-                    type="text" class="bot-input" placeholder="¿En qué puedo ayudarte?" id="botSearch"></div>
-            <div id="botRes" style="margin-top: 15px; max-height: 40vh; overflow-y:auto;"></div>
+                    type="text" class="bot-input" placeholder="¿En qué puedo ayudarte?" id="botSearch" style="box-sizing: border-box; width: 100%;"></div>
+            <div id="botRes" style="margin-top: 15px; max-height: 40vh; overflow-y:auto; box-sizing: border-box;"></div>
         </div>
     </div>
 
@@ -669,11 +682,11 @@
         </div>
     </div>
 
-    <nav class="nav-footer">
-        <a href="opciones.html" class="nav-link nav-home-pulse"><i class="fa-solid fa-house"></i></a>
-        <a href="contactos.html" class="nav-link"><i class="fa-solid fa-phone"></i></a>
-        <a href="#" class="nav-link" onclick="toggleUser(true)"><i class="fa-solid fa-user"></i></a>
-        <a href="#" class="nav-link" onclick="toggleSettings(true)"><i class="fa-solid fa-gear"></i></a>
+        <nav class="bottom-nav">
+        <a href="opciones.html" class="nav-btn"><i class="fa-solid fa-house"></i></a>
+        <a href="contactos.html" class="nav-btn"><i class="fa-solid fa-phone"></i></a>
+        <a href="#" class="nav-btn" onclick="toggleUser(true)"><i class="fa-solid fa-user"></i></a>
+        <a href="#" class="nav-btn" onclick="toggleSettings(true)"><i class="fa-solid fa-gear"></i></a>
     </nav>
 
     <!-- CONFIG & USER MODALS (Partial reuse from template) -->
@@ -952,6 +965,8 @@
             setTimeout(() => { document.getElementById('loader-wrapper').style.opacity = '0'; setTimeout(() => document.getElementById('loader-wrapper').style.display = 'none', 500); }, 800);
         });
     </script>
+
+    <script src="stm-bot.js"></script>
 </body>
 
 </html>

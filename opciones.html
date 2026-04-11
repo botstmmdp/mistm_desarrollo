@@ -518,7 +518,8 @@
             transform: scale(0.95);
         }
 
-        /* --- ASISTENTE OVERLAY --- */        .search-modal {
+        /* --- ASISTENTE OVERLAY --- */
+        .search-modal {
             position: fixed;
             inset: 0;
             background: rgba(15, 23, 42, 0.7);
@@ -817,6 +818,88 @@
                 transform: translateY(0);
             }
         }
+    
+        /* --- BOT & MODALS --- */
+        .bot-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.3s;
+        }
+
+        .bot-modal.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .bot-content {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            padding: 30px 20px 40px;
+            transform: translateY(100%);
+            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        body.dark-mode .bot-content {
+            background: #1e293b;
+            color: white;
+        }
+
+        .bot-modal.active .bot-content {
+            transform: translateY(0);
+        }
+
+        .bot-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border-radius: 18px;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 1rem;
+            color: var(--text-dark);
+            outline: none;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode .bot-input {
+            background: #0f172a;
+            border-color: #334155;
+            color: white;
+        }
+
+        .res-item-bot {
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            transition: 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            padding: 12px;
+        }
+
+        body.dark-mode .res-item-bot {
+            background: #0f172a !important;
+            border-color: #334155 !important;
+            color: white !important;
+        }
+            
     </style>
 </head>
 
@@ -997,7 +1080,7 @@
     <div class="fab-wrapper">
         <!-- BOT: Se ordena de abajo hacia arriba -->
         <div class="fab-item-wrapper" id="fabBotIcon">
-            <div class="fab-bot" onclick="toggleModal(true)">
+            <div class="fab-bot" onclick="toggleBot(true)">
                 <i class="fa-solid fa-robot"></i>
             </div>
         </div>
@@ -1018,20 +1101,16 @@
     </div>
 
     <!-- MODAL ASISTENTE -->
-    <div class="search-modal" id="modalAsist" onclick="if(event.target == this) toggleModal(false)">
-        <div class="search-content">
+    <div class="bot-modal" id="modalBot" onclick="if(event.target == this) toggleBot(false)">
+        <div class="bot-content">
             <div style="width: 40px; height: 5px; background: #e2e8f0; border-radius: 10px; margin: -10px auto 20px;">
             </div>
-            <div class="search-bar-box">
-                <i class="fa-solid fa-robot"></i>
-                <input type="text" class="search-input" placeholder="¿En qué puedo ayudarte?" id="searchInput">
-            </div>
-
-            <div class="results-list" id="results">
-                <div class="res-section" id="titleA" style="display:none">Resultados destacados</div>
-                <div id="resList"></div>
-            </div>
+            <div style="position:relative; margin-bottom:15px; box-sizing: border-box;"><i class="fa-solid fa-robot"
+                    style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--stm-primary)"></i><input
+                    type="text" class="bot-input" placeholder="¿En qué puedo ayudarte?" id="botSearch" style="box-sizing: border-box; width: 100%;"></div>
+            <div id="botRes" style="margin-top: 15px; max-height: 40vh; overflow-y:auto; box-sizing: border-box;"></div>
         </div>
+    </div>
     </div>
 
     <nav class="bottom-nav">
@@ -1102,28 +1181,39 @@
     <!-- MODAL PERFIL/CONTRASEÑA - DISEÑO CENTRADO PREMIUM -->
     <div class="search-modal" id="modalUser" onclick="if(event.target == this) toggleUser(false)">
         <div class="search-content">
-            <div style="width: 70px; height: 70px; background: rgba(79, 70, 229, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <div
+                style="width: 70px; height: 70px; background: rgba(79, 70, 229, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
                 <i class="fa-solid fa-user-shield" style="font-size: 1.8rem; color: var(--stm-primary);"></i>
             </div>
             <h2 style="font-weight: 900; font-size: 1.5rem; margin-bottom: 5px; color: inherit;">Mi Cuenta</h2>
             <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 25px;">Gestiona tu acceso y seguridad</p>
-            
+
             <div style="display: flex; flex-direction: column; gap: 15px;">
                 <div style="position: relative;">
-                    <i class="fa-solid fa-lock" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                    <input type="password" id="newPass" class="search-input" placeholder="Nueva Contraseña" style="padding-left: 50px;">
+                    <i class="fa-solid fa-lock"
+                        style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    <input type="password" id="newPass" class="search-input" placeholder="Nueva Contraseña"
+                        style="padding-left: 50px;">
                 </div>
                 <div style="position: relative;">
-                    <i class="fa-solid fa-shield-check" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                    <input type="password" id="confirmPass" class="search-input" placeholder="Confirmar contraseña" style="padding-left: 50px;">
+                    <i class="fa-solid fa-shield-check"
+                        style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    <input type="password" id="confirmPass" class="search-input" placeholder="Confirmar contraseña"
+                        style="padding-left: 50px;">
                 </div>
-                
-                <button onclick="changePassword()" style="margin-top: 10px; width: 100%; padding: 18px; border-radius: 20px; border: none; background: var(--stm-primary); color: white; font-weight: 800; font-family: inherit; font-size: 1.1rem; cursor: pointer; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);">Actualizar Contraseña</button>
+
+                <button onclick="changePassword()"
+                    style="margin-top: 10px; width: 100%; padding: 18px; border-radius: 20px; border: none; background: var(--stm-primary); color: white; font-weight: 800; font-family: inherit; font-size: 1.1rem; cursor: pointer; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);">Actualizar
+                    Contraseña</button>
             </div>
-            
-            <div style="margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                <button onclick="logout()" style="width: 100%; padding: 15px; border-radius: 18px; border: 2px solid #ef4444; background: transparent; color: #ef4444; font-weight: 800; font-family: inherit; font-size: 0.95rem; cursor: pointer;">Cerrar Sesión</button>
-                <button onclick="toggleUser(false)" style="width: 100%; padding: 10px; border: none; background: transparent; color: #94a3b8; font-weight: 600; font-family: inherit; font-size: 0.9rem; cursor: pointer;">Cancelar</button>
+
+            <div
+                style="margin-top: 25px; border-top: 1px solid #f1f5f9; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                <button onclick="logout()"
+                    style="width: 100%; padding: 15px; border-radius: 18px; border: 2px solid #ef4444; background: transparent; color: #ef4444; font-weight: 800; font-family: inherit; font-size: 0.95rem; cursor: pointer;">Cerrar
+                    Sesión</button>
+                <button onclick="toggleUser(false)"
+                    style="width: 100%; padding: 10px; border: none; background: transparent; color: #94a3b8; font-weight: 600; font-family: inherit; font-size: 0.9rem; cursor: pointer;">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1192,46 +1282,60 @@
     </div>
 
     <!-- MODAL MENSAJE DE USUARIO - DISEÑO PREMIUM -->
-    <div class="search-modal" id="modalMensajeUser" style="display: none; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); z-index: 21000;">
-        <div class="search-content" style="position: relative; width: 90%; max-width: 380px; transform: scale(0.5); border-radius: 35px; bottom: auto; padding: 40px 25px 35px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; display: flex; flex-direction: column;">
+    <div class="search-modal" id="modalMensajeUser"
+        style="display: none; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); z-index: 21000;">
+        <div class="search-content"
+            style="position: relative; width: 90%; max-width: 380px; transform: scale(0.5); border-radius: 35px; bottom: auto; padding: 40px 25px 35px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; display: flex; flex-direction: column;">
             <div style="text-align: center; margin-bottom: 20px;">
-                <div style="width: 70px; height: 70px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                <div
+                    style="width: 70px; height: 70px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
                     <i class="fa-solid fa-envelope-open-text" style="font-size: 1.8rem; color: #10b981;"></i>
                 </div>
-                <h2 id="msgModalTitle" style="font-weight: 900; font-size: 1.4rem; color: var(--text-dark); margin: 0;">¡Mensaje Nuevo!</h2>
+                <h2 id="msgModalTitle" style="font-weight: 900; font-size: 1.4rem; color: var(--text-dark); margin: 0;">
+                    ¡Mensaje Nuevo!</h2>
                 <p style="color: #64748b; font-size: 0.9rem; margin-top: 5px;">Comunicado oficial del STM</p>
             </div>
 
-            <div id="msgModalBody" style="background: #f8fafc; padding: 5px 15px; border-radius: 24px; border: 1px solid #e2e8f0; color: #1e293b; margin-bottom: 25px; max-height: 250px; overflow-y: auto;">
+            <div id="msgModalBody"
+                style="background: #f8fafc; padding: 5px 15px; border-radius: 24px; border: 1px solid #e2e8f0; color: #1e293b; margin-bottom: 25px; max-height: 250px; overflow-y: auto;">
                 Cargando...
             </div>
 
-            <button onclick="toggleMensajeModal(false)" style="width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--stm-primary); color: white; font-weight: 800; font-family: inherit; font-size: 1.1rem; cursor: pointer; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);">¡Entendido!</button>
+            <button onclick="toggleMensajeModal(false)"
+                style="width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--stm-primary); color: white; font-weight: 800; font-family: inherit; font-size: 1.1rem; cursor: pointer; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);">¡Entendido!</button>
         </div>
     </div>
 
     <!-- MODAL AVISO MENSAJE NUEVO - DISEÑO PREMIUM -->
-    <div class="search-modal" id="modalAvisoMsg" style="display: none; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); z-index: 21000;">
-        <div class="search-content" style="position: relative; width: 90%; max-width: 380px; transform: scale(0.5); border-radius: 35px; bottom: auto; padding: 40px 25px 35px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; display: flex; flex-direction: column;">
+    <div class="search-modal" id="modalAvisoMsg"
+        style="display: none; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); z-index: 21000;">
+        <div class="search-content"
+            style="position: relative; width: 90%; max-width: 380px; transform: scale(0.5); border-radius: 35px; bottom: auto; padding: 40px 25px 35px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; display: flex; flex-direction: column;">
             <div style="text-align: center; margin-bottom: 20px;">
-                <div style="width: 70px; height: 70px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
-                    <i class="fa-solid fa-bell animate__animated animate__swing animate__infinite" style="font-size: 1.8rem; color: #ef4444;"></i>
+                <div
+                    style="width: 70px; height: 70px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                    <i class="fa-solid fa-bell animate__animated animate__swing animate__infinite"
+                        style="font-size: 1.8rem; color: #ef4444;"></i>
                 </div>
                 <h2 style="font-weight: 900; font-size: 1.4rem; color: var(--text-dark); margin: 0;">¡Atención!</h2>
                 <p style="color: #64748b; font-size: 0.9rem; margin-top: 5px;">Tienes una notificación importante</p>
             </div>
 
-            <div style="background: #f8fafc; padding: 20px; border-radius: 22px; border: 1px solid #e2e8f0; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
-                <div style="background: white; width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 10px rgba(0,0,0,0.05);">
+            <div
+                style="background: #f8fafc; padding: 20px; border-radius: 22px; border: 1px solid #e2e8f0; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+                <div
+                    style="background: white; width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 10px rgba(0,0,0,0.05);">
                     <i class="fa-solid fa-message" style="color: #ef4444;"></i>
                 </div>
                 <div style="text-align: left;">
-                   <h4 id="avisoMsgTitle" style="margin: 0; font-size: 0.95rem; font-weight: 800;">Mensaje del STM</h4>
-                   <p style="margin: 0; font-size: 0.75rem; color: #94a3b8;">Pulsa la campana para leer</p>
+                    <h4 id="avisoMsgTitle" style="margin: 0; font-size: 0.95rem; font-weight: 800;">Mensaje del STM</h4>
+                    <p style="margin: 0; font-size: 0.75rem; color: #94a3b8;">Pulsa la campana para leer</p>
                 </div>
             </div>
 
-            <button onclick="verMensajeDesdeAviso()" style="width: 100%; padding: 20px; border-radius: 20px; border: none; background: #ef4444; color: white; font-weight: 800; font-family: inherit; font-size: 1.1rem; cursor: pointer; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);">Ver Mensaje</button>
+            <button onclick="verMensajeDesdeAviso()"
+                style="width: 100%; padding: 20px; border-radius: 20px; border: none; background: #ef4444; color: white; font-weight: 800; font-family: inherit; font-size: 1.1rem; cursor: pointer; box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);">Ver
+                Mensaje</button>
         </div>
     </div>
 
@@ -1257,7 +1361,7 @@
         ];
 
         // CAMBIAR POR EL URL DEL SCRIPT DE ADMINISTRACIÓN
-        const ADMIN_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbybVt6yCZxBZQWjBcV0gRMyuXYsL8mRaFWQZd_yvulLHUzFH_jUBrT7WFDrJkKG02dL/exec';
+        const ADMIN_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzzgma7qS2lymKFocibYCGep8jwBc2aK_BnRAjAu9P_Y-JhhepUMicgPnGCsC8Th1WT/exec';
         // CAMBIAR POR EL URL DEL SCRIPT DE USUARIOS SI ES DISTINTO
         const USER_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCxqMSFt7usCe2e8Z6w20-ad5G_vB21rEEKnB6hWZ0zDKfu64mgNFXiTVT3oM5R4tTHw/exec';
 
@@ -1266,7 +1370,7 @@
         const NEWS_GID = "195669740";
         const NEWS_URL = `https://docs.google.com/spreadsheets/d/${NEWS_SHEET_ID}/gviz/tq?tqx=out:json&gid=${NEWS_GID}`;
         let allNews = [];
-        
+
         function getRawDate(dateString) {
             let date;
             const stringMatch = String(dateString).match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
@@ -1294,7 +1398,7 @@
                     desc: (r.c[2]?.v || "").toString(),
                     fecha: (r.c[3]?.f || r.c[3]?.v || "").toString(),
                     activo: (r.c[4]?.v || "").toString().trim().toUpperCase() === "SI"
-                })).filter(n => n.activo).sort((a,b) => getRawDate(b.fecha) - getRawDate(a.fecha));
+                })).filter(n => n.activo).sort((a, b) => getRawDate(b.fecha) - getRawDate(a.fecha));
 
                 // Verificar si mostramos el botón de alerta en el header
                 checkHeaderAlerts();
@@ -1331,8 +1435,8 @@
         }
 
         function toggleBot(show) {
-            document.getElementById('searchOverlay').classList.toggle('active', show);
-            if (show) setTimeout(() => document.getElementById('searchInput').focus(), 400);
+            document.getElementById('modalBot').classList.toggle('active', show);
+            if (show) setTimeout(() => document.getElementById('botSearch').focus(), 400);
         }
 
         function toggleSettings(show) {
@@ -1428,7 +1532,7 @@
         }
 
         let searchTimer = null;
-        document.getElementById('searchInput').addEventListener('input', function (e) {
+        document.getElementById('botSearch').addEventListener('input', function (e) {
             const val = normalize(e.target.value).trim();
             const resList = document.getElementById('resList');
             const titleA = document.getElementById('titleA');
@@ -1606,7 +1710,7 @@
                 if (userMessages.length > 0) {
                     btn.classList.add('bell-active');
                     btn.classList.remove('bell-inactive');
-                    
+
                     // Si no hay ningún modal activo en este momento, mostrar el aviso
                     // (Si hay uno activo, closeVigencias se encargará al cerrarse)
                     setTimeout(() => {
@@ -1635,7 +1739,7 @@
                 const sortedMsgs = [...userMessages].sort((a, b) => {
                     return Number(b.id_mensaje || 0) - Number(a.id_mensaje || 0);
                 });
-                
+
                 const msgsHtml = sortedMsgs.map((m, index) => {
                     const msgDate = formatDisplayDate(m.fecha);
                     const isNewest = index === 0;
@@ -1648,7 +1752,7 @@
                         <p style="margin: 0; color: #1e293b; font-size: 1rem; line-height: 1.4; font-weight: ${isNewest ? '600' : '400'}; text-align: left;">${m.mensaje}</p>
                     </div>
                 `}).join('');
-                
+
                 document.getElementById('msgModalTitle').innerText = "Mensajes del STM";
                 document.getElementById('msgModalBody').innerHTML = msgsHtml;
                 toggleMensajeModal(true);
@@ -1707,7 +1811,7 @@
             if (show) {
                 // Actualizar título dinámico antes de mostrar
                 if (userMessages && userMessages.length > 0) {
-                    const sorted = [...userMessages].sort((a,b) => Number(b.id_mensaje||0) - Number(a.id_mensaje||0));
+                    const sorted = [...userMessages].sort((a, b) => Number(b.id_mensaje || 0) - Number(a.id_mensaje || 0));
                     const lastTitle = sorted[0]?.titulo || "Mensaje del STM";
                     const avisoTitleElem = document.getElementById('avisoMsgTitle');
                     if (avisoTitleElem) avisoTitleElem.innerText = lastTitle;
@@ -1731,7 +1835,7 @@
             document.getElementById('modalVigencias').classList.remove('active');
             setTimeout(() => {
                 document.getElementById('modalVigencias').style.display = 'none';
-                
+
                 // Al cerrar el modal de actividades/recordatorio, mostrar aviso de mensaje si hay
                 if (userMessages && userMessages.length > 0) {
                     setTimeout(() => {
@@ -1739,12 +1843,12 @@
                         if (window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
                     }, 300);
                 }
-            }, 600); 
+            }, 600);
         }
 
         window.addEventListener('load', () => {
             loadSettings();
-            fetchNews(); 
+            fetchNews();
             checkUserMessages(); // Verificar mensajes del usuario al entrar
 
             // Lógica para mostrar recordatorio siempre que Actividades esté activo en config
@@ -1788,6 +1892,8 @@
             }, 800);
         });
     </script>
+
+    <script src="stm-bot.js"></script>
 </body>
 
 </html>
