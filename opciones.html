@@ -818,7 +818,7 @@
                 transform: translateY(0);
             }
         }
-    
+
         /* --- BOT & MODALS --- */
         .bot-modal {
             position: fixed;
@@ -899,7 +899,6 @@
             border-color: #334155 !important;
             color: white !important;
         }
-            
     </style>
 </head>
 
@@ -1107,7 +1106,8 @@
             </div>
             <div style="position:relative; margin-bottom:15px; box-sizing: border-box;"><i class="fa-solid fa-robot"
                     style="position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--stm-primary)"></i><input
-                    type="text" class="bot-input" placeholder="¿En qué puedo ayudarte?" id="botSearch" style="box-sizing: border-box; width: 100%;"></div>
+                    type="text" class="bot-input" placeholder="¿En qué puedo ayudarte?" id="botSearch"
+                    style="box-sizing: border-box; width: 100%;"></div>
             <div id="botRes" style="margin-top: 15px; max-height: 40vh; overflow-y:auto; box-sizing: border-box;"></div>
         </div>
     </div>
@@ -1360,10 +1360,12 @@
             { t: "Inicio", d: "Panel principal de opciones", f: "opciones.html", tags: "inicio dashboard panel principal volver", ico: "fa-house" }
         ];
 
-        // CAMBIAR POR EL URL DEL SCRIPT DE ADMINISTRACIÓN
-        const ADMIN_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzzgma7qS2lymKFocibYCGep8jwBc2aK_BnRAjAu9P_Y-JhhepUMicgPnGCsC8Th1WT/exec';
-        // CAMBIAR POR EL URL DEL SCRIPT DE USUARIOS SI ES DISTINTO
-        const USER_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCxqMSFt7usCe2e8Z6w20-ad5G_vB21rEEKnB6hWZ0zDKfu64mgNFXiTVT3oM5R4tTHw/exec';
+        // CAMBIAR POR EL URL DEL SCRIPT DE ADMINISTRACIÓN - esto se agrego con los mensajes campanita
+        const ADMIN_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyTyLGp0MGUFZWPawzWB9qXb_TukjwmLcSf8CtaFbrgxCQdxKLWB3LuG6fNV5ravDf-/exec';
+
+
+        // CAMBIAR ESTE URL QUE ES EL QUE VA CON LA APP
+        const USER_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwaxfCHCLrRICzQB33-sB1HpxMgVlDKLBSm1y0R9uDRrv8pDa-8quJ4WYV7FLchLQMY6Q/exec';
 
         // --- NOVEDADES PARA EL BOT ---
         const NEWS_SHEET_ID = "16Y723omF3l38Ntq0MUSh-ZMYnRIvYmctrscidox5ktc";
@@ -1703,9 +1705,14 @@
             if (!usrID) return;
 
             try {
-                const res = await fetch(ADMIN_BACKEND_URL);
+                const usrID = localStorage.getItem('usrID');
+                // Forzamos el paso del parámetro userId para que el Backend filtre
+                const res = await fetch(`${ADMIN_BACKEND_URL}?userId=${usrID}`);
                 const data = await res.json();
-                userMessages = (data.MENSAJES || []).filter(m => String(m.id_user) === String(usrID));
+
+                // Los mensajes ya vienen filtrados por el servidor, los guardamos
+                userMessages = data.MENSAJES || [];
+                console.log("Mensajes recibidos para usuario " + usrID + ":", userMessages.length);
 
                 const btn = document.getElementById('headerAlertBtn');
                 if (userMessages.length > 0) {
@@ -1787,20 +1794,38 @@
                 if (inner) { inner.style.transform = 'scale(0.5)'; inner.style.opacity = '0'; }
                 setTimeout(() => { modal.style.display = 'none'; }, 400);
 
-                // AUTOMATIZACIÓN: Borrar TODOS los mensajes del servidor una vez vistos
-                if (userMessages.length > 0) {
-                    for (const msg of userMessages) {
+                // AUTOMATIZACIÓN: Borrar mensajes del servidor una vez vistos cronológicamente
+                if (userMessages && userMessages.length > 0) {
+                    const usrID = localStorage.getItem('usrID');
+                    const toDelete = [...userMessages];
+                    userMessages = []; // Limpiamos la lista local
+
+                    console.log("Iniciando borrado de " + toDelete.length + " mensajes...");
+
+                    // Borrado secuencial para no saturar al servidor de Google
+                    for (const msg of toDelete) {
                         const msgId = msg.id_mensaje || msg.id;
-                        // Envío asíncrono de eliminación
-                        fetch(ADMIN_BACKEND_URL, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'text/plain' },
-                            body: JSON.stringify({ action: 'DELETE', sheet: 'MENSAJES', id: msgId })
-                        }).catch(e => console.warn("Error borrando mensaje:", e));
+                        if (!msgId) continue;
+
+                        try {
+                            // Usamos una petición más compatible con Google Apps Script
+                            await fetch(ADMIN_BACKEND_URL, {
+                                method: 'POST',
+                                mode: 'no-cors',
+                                headers: { 'Content-Type': 'text/plain' },
+                                body: JSON.stringify({
+                                    action: 'DELETE',
+                                    sheet: 'MENSAJES',
+                                    id: msgId,
+                                    userId: usrID
+                                })
+                            });
+                            console.log("Mensaje borrado ID: " + msgId);
+                        } catch (e) {
+                            console.warn("Fallo al borrar mensaje " + msgId, e);
+                        }
                     }
-                    // Limpiar la lista local
-                    userMessages = [];
+
                     const btn = document.getElementById('headerAlertBtn');
                     if (btn) { btn.classList.add('bell-inactive'); btn.classList.remove('bell-active'); }
                 }
