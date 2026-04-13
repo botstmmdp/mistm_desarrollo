@@ -152,7 +152,8 @@
         .main-grid {
             padding: 20px 16px 140px;
             display: grid;
-            grid-template-columns: 1fr 1fr; /* DOS COLUMNAS */
+            grid-template-columns: 1fr 1fr;
+            /* DOS COLUMNAS */
             gap: 15px;
         }
 
@@ -161,7 +162,8 @@
             border-radius: 25px;
             padding: 22px 15px;
             display: flex;
-            flex-direction: column; /* ICONO ARRIBA, TEXTO ABAJO */
+            flex-direction: column;
+            /* ICONO ARRIBA, TEXTO ABAJO */
             align-items: center;
             text-align: center;
             gap: 12px;
@@ -1553,7 +1555,7 @@
 
                 // Como usamos no-cors, la respuesta sera 'opaque', asumimos exito si no hay catch
                 localStorage.setItem('usrPass', p1);
-                showNotify("¡Contraseña actualizada en la nube!", "success");
+                showNotify("¡Operación exitosa!", "success");
                 btn.innerHTML = `<span>¡Listo! ✓</span>`;
                 btn.style.background = "#10b981";
 
