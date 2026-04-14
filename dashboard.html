@@ -478,8 +478,14 @@
                 </button>
             </div>
             <div class="nav-item-dashboard">
-                <button id="nav-mensajes-recibidos" class="nav-link-dashboard" onclick="switchModule('mensajes-recibidos', this)">
+                <button id="nav-mensajes-recibidos" class="nav-link-dashboard"
+                    onclick="switchModule('mensajes-recibidos', this)">
                     <i class="fas fa-comment-dots"></i> Mensajes Recibidos
+                </button>
+            </div>
+            <div class="nav-item-dashboard">
+                <button class="nav-link-dashboard" onclick="switchModule('afiliaciones', this)">
+                    <i class="fas fa-user-plus"></i> Solicitudes Afiliación
                 </button>
             </div>
             <div class="nav-item-dashboard">
@@ -571,7 +577,7 @@
                         <div class="stat-icon bg-accent-soft"><i class="fas fa-users"></i></div>
                         <div>
                             <h3 class="mb-0 fw-black" id="stat-users">0</h3>
-                            <p class="mb-0 text-muted small fw-bold">Usuarios</p>
+                            <p class="mb-0 text-muted small fw-bold">Usuarios activos</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -592,7 +598,14 @@
                         <div class="stat-icon bg-red-soft"><i class="fas fa-comment-dots"></i></div>
                         <div>
                             <h3 class="mb-0 fw-black" id="stat-recibidos">0</h3>
-                            <p class="mb-0 text-muted small fw-bold">Mensajes Web</p>
+                            <p class="mb-0 text-muted small fw-bold">Mensajes pendientes de usuarios</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon bg-blue-soft"><i class="fas fa-user-plus"></i></div>
+                        <div>
+                            <h3 class="mb-0 fw-black" id="stat-afiliaciones">0</h3>
+                            <p class="mb-0 text-muted small fw-bold">Solicitudes Afiliación</p>
                         </div>
                     </div>
                 </div>
@@ -733,6 +746,31 @@
                                     <th>Mensaje</th>
                                     <th>Fecha</th>
                                     <th>Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE: AFILIACIONES -->
+            <div id="module-afiliaciones" class="module d-none animate__animated animate__fadeIn">
+                <div class="module-header">
+                    <h4 class="fw-black m-0">Solicitudes de Afiliación</h4>
+                </div>
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table class="table-premium w-100" id="tableAfiliaciones">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Nombre y Apellido</th>
+                                    <th>Legajo</th>
+                                    <th>DNI</th>
+                                    <th>WhatsApp</th>
+                                    <th>Email</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
@@ -899,7 +937,7 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyMIsCzYZw0CK2e2kGiRD8FUNzPys4U5yqFRF_peOqvp1OBiGWd0LMI6WQbQ9HfcZOz/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwqTfZtp4bx4jCb7HufNlAi8kLOeYVwIggC-1g0tUNjqad3r2a8FeohMyKtXrCvDfo-/exec';
 
         let activeTab = 'Convenios';
         let activeModule = 'inicio';
@@ -909,7 +947,8 @@
             Novedades: [],
             Usuarios: [],
             Mensajes: [],
-            MensajesRecibidos: []
+            MensajesRecibidos: [],
+            Afiliaciones: []
         };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -948,6 +987,7 @@
                 'usuarios': 'Usuarios',
                 'mensajes': 'Mensajes',
                 'mensajes-recibidos': 'MensajesRecibidos',
+                'afiliaciones': 'Afiliaciones',
                 'afiliacion': 'Afiliación',
                 'capacitacion': 'Capacitación'
             };
@@ -984,6 +1024,7 @@
                 dataStore.Usuarios = result.USUARIOS || [];
                 dataStore.Mensajes = result.MENSAJES || [];
                 dataStore.MensajesRecibidos = result.MENSAJES_RECIBIDOS || [];
+                dataStore.Afiliaciones = result.AFILIACIONES || [];
 
                 updateRubrosDatalist();
                 updateStats();
@@ -1021,6 +1062,8 @@
                 statRecibidos.parentElement.parentElement.classList.add('stat-card-disabled');
                 if (navRecibidos) navRecibidos.classList.remove('blink-btn');
             }
+
+            document.getElementById('stat-afiliaciones').innerText = dataStore.Afiliaciones.length;
         }
 
         function checkIncomingMessages() {
@@ -1120,6 +1163,33 @@
             renderUsuarios();
             renderMensajes();
             renderMensajesRecibidos();
+            renderAfiliaciones();
+        }
+
+        function renderAfiliaciones() {
+            const tbody = document.querySelector('#tableAfiliaciones tbody');
+            if (!tbody) return;
+            const sorted = [...dataStore.Afiliaciones].sort((a, b) => {
+                const dateA = new Date(a.fechasolicitud || a.fecha);
+                const dateB = new Date(b.fechasolicitud || b.fecha);
+                return dateB - dateA;
+            });
+
+            tbody.innerHTML = sorted.map(af => `
+                <tr>
+                    <td><small class="fw-bold text-slate-400">${formatDisplayDate(af.fechasolicitud || af.fecha)}</small></td>
+                    <td class="fw-bold text-slate-700">${af.nom_ap}</td>
+                    <td><span class="badge-user">${af.legajo || '-'}</span></td>
+                    <td><span class="badge-permiso">${af.dni || '-'}</span></td>
+                    <td><small class="text-muted fw-bold">${af.telefono || '-'}</small></td>
+                    <td><small class="text-muted">${af.email || '-'}</small></td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                             <div class="action-btn btn-delete" onclick="deleteEntry('AFILIACIONES', ${af.id})"><i class="fas fa-trash"></i></div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function renderMensajesRecibidos() {
