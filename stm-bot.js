@@ -35,6 +35,7 @@
                 const text = await res.text();
                 const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
                 botNews = (json.table.rows || []).map(r => ({
+                    id: (r.c[0]?.v || "").toString(),
                     titulo: (r.c[1]?.v || "").toString(),
                     desc:   (r.c[2]?.v || "").toString()
                 }));
@@ -48,6 +49,7 @@
                 const text = await res.text();
                 const json = JSON.parse(text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1));
                 botConvenios = (json.table.rows || []).map(r => ({
+                    id: (r.c[0]?.v || "").toString(),
                     rubro: (r.c[1]?.v || "").toString(),
                     titulo: (r.c[2]?.v || "").toString(),
                     desc: (r.c[3]?.v || "").toString(),
@@ -203,7 +205,7 @@
                     if (matchedConv.length > 0) {
                         res.innerHTML += `<div class="bot-results-title" style="font-size: 0.72rem; font-weight: 800; color: #10b981; text-transform: uppercase; letter-spacing: 0.5px; margin: 15px 0 10px 5px;">CONVENIOS ENCONTRADOS</div>`;
                         matchedConv.slice(0, 5).forEach(c => {
-                            res.innerHTML += `<a href="convenios.html" class="res-item-bot" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:15px; margin-bottom:8px; text-decoration:none; color:inherit; background:#ecfdf5; border:1px solid #d1fae5; display:block">
+                            res.innerHTML += `<a href="convenios.html?id=${c.id}" class="res-item-bot" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:15px; margin-bottom:8px; text-decoration:none; color:inherit; background:#ecfdf5; border:1px solid #d1fae5; display:block">
                                 <div style="display:flex; align-items:center; gap:10px">
                                     <div style="width:30px; height:30px; border-radius:8px; background:#10b981; color:white; display:flex; align-items:center; justify-content:center; font-size:0.8rem"><i class="fa-solid fa-handshake"></i></div>
                                     <div><h4 style="margin:0; font-size:0.85rem">${c.titulo}</h4><p style="margin:0; font-size:0.7rem; color:#065f46">${c.rubro}</p></div>
@@ -216,7 +218,7 @@
                     if (matchedNews.length > 0) {
                         res.innerHTML += `<div class="bot-results-title" style="font-size: 0.72rem; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px; margin: 15px 0 10px 5px;">NOVEDADES RECIENTES</div>`;
                         matchedNews.slice(0, 3).forEach(n => {
-                            res.innerHTML += `<a href="novedades.html" class="res-item-bot" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:15px; margin-bottom:8px; text-decoration:none; color:inherit; background:#fffbeb; border:1px solid #fef3c7; display:block">
+                            res.innerHTML += `<a href="novedades.html?id=${n.id}" class="res-item-bot" style="display:flex; align-items:center; gap:12px; padding:12px; border-radius:15px; margin-bottom:8px; text-decoration:none; color:inherit; background:#fffbeb; border:1px solid #fef3c7; display:block">
                                 <div style="display:flex; align-items:center; gap:10px">
                                     <div style="width:30px; height:30px; border-radius:8px; background:#f59e0b; color:white; display:flex; align-items:center; justify-content:center; font-size:0.8rem"><i class="fa-solid fa-newspaper"></i></div>
                                     <div><h4 style="margin:0; font-size:0.85rem">${n.titulo}</h4></div>
