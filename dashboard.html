@@ -16,11 +16,12 @@
 
     <style>
         :root {
-            /* Paleta STM Premium */
-            --primary: #0f172a;
-            --primary-light: #1e293b;
+            /* Paleta STM — colores primarios */
+            --primary: #1e1b3a;
+            --primary-light: #2a2650;
             --sidebar-width: 280px;
-            --accent: #10B981;
+            --accent: #37306B;
+            --accent-bright: #4a4280;
             --bg-light: #f8fafc;
             --white: #ffffff;
             --text-main: #1e293b;
@@ -44,7 +45,7 @@
         .sidebar {
             width: var(--sidebar-width);
             background: var(--primary);
-            color: white;
+            color: #ffffff;
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -52,6 +53,8 @@
             z-index: 1001;
             padding: 1.5rem 0;
             transition: var(--transition);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
         }
 
         .sidebar-brand {
@@ -59,11 +62,11 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            color: #ffffff;
         }
 
         .sidebar-brand img {
             height: 45px;
-            filter: brightness(0) invert(1);
         }
 
         .sidebar-brand span {
@@ -89,7 +92,7 @@
             align-items: center;
             gap: 12px;
             padding: 0.8rem 1.25rem;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             border-radius: 12px;
             transition: var(--transition);
@@ -102,40 +105,28 @@
             font-size: 0.9rem;
         }
 
+        .nav-link-dev {
+            color: rgba(255, 255, 255, 0.3) !important;
+            cursor: default !important;
+            pointer-events: none;
+        }
+
         .nav-link-dashboard i {
             width: 20px;
             font-size: 1rem;
             text-align: center;
         }
 
-        .nav-link-dashboard:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        @keyframes soft-blink {
-            0% {
-                opacity: 1;
-                box-shadow: 0 8px 15px -3px rgba(16, 185, 129, 0.3);
-            }
-
-            50% {
-                opacity: 0.8;
-                box-shadow: 0 4px 10px -3px rgba(16, 185, 129, 0.2);
-            }
-
-            100% {
-                opacity: 1;
-                box-shadow: 0 8px 15px -3px rgba(16, 185, 129, 0.3);
-            }
+        .nav-link-dashboard:hover:not(.nav-link-dev) {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .nav-link-dashboard.active {
             color: white;
-            background: var(--accent);
-            box-shadow: 0 8px 15px -3px rgba(16, 185, 129, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+            border-left: 3px solid #ffffff;
             font-weight: 700;
-            animation: soft-blink 2.5s infinite ease-in-out;
         }
 
         /* --- MAIN CONTENT --- */
@@ -226,6 +217,52 @@
         @keyframes blinker {
             50% {
                 opacity: 0.4;
+            }
+        }
+
+        .blink-red {
+            animation: blink-red-border 1.5s infinite ease-in-out;
+            border-width: 2px !important;
+        }
+
+        @keyframes blink-red-border {
+            0% {
+                border-color: #e2e8f0;
+                box-shadow: none;
+            }
+
+            50% {
+                border-color: #ef4444;
+                box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+            }
+
+            100% {
+                border-color: #e2e8f0;
+                box-shadow: none;
+            }
+        }
+
+        /* Parpadeo visible para botones del sidebar */
+        .nav-link-dashboard.blink-red {
+            animation: sidebar-pulse 1.4s infinite ease-in-out !important;
+            border-width: 0 !important;
+            color: #fff !important;
+        }
+
+        @keyframes sidebar-pulse {
+            0% {
+                background: rgba(239, 68, 68, 0.25);
+                box-shadow: inset 0 0 0 0 transparent;
+            }
+
+            50% {
+                background: rgba(239, 68, 68, 0.55);
+                box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+            }
+
+            100% {
+                background: rgba(239, 68, 68, 0.25);
+                box-shadow: inset 0 0 0 0 transparent;
             }
         }
 
@@ -397,13 +434,13 @@
         }
 
         .btn-accent-p {
-            background: var(--accent);
+            background: var(--primary);
             color: white;
         }
 
         .btn-accent-p:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 5px 15px rgba(30, 27, 58, 0.35);
             color: white;
         }
 
@@ -451,9 +488,9 @@
     <div class="feedback" id="feedbackMessage"></div>
 
     <aside class="sidebar">
-        <div class="sidebar-brand justify-content-center flex-column py-3">
-            <img src="../logo nuevo.png" alt="Logo" style="height: 60px; filter: none;">
-            <span class="mt-2 text-white small fw-bold tracking-wide">PANEL DE CONTROL</span>
+        <div class="sidebar-brand">
+            <img src="../logo nuevo.png" alt="STM">
+            <span>Gestor de aplicación web</span>
         </div>
 
         <nav class="nav-menu">
@@ -484,38 +521,33 @@
                 </button>
             </div>
             <div class="nav-item-dashboard">
-                <button class="nav-link-dashboard" onclick="switchModule('afiliaciones', this)">
+                <button id="nav-afiliaciones" class="nav-link-dashboard" onclick="switchModule('afiliaciones', this)">
                     <i class="fas fa-user-plus"></i> Solicitudes Afiliación
                 </button>
             </div>
             <div class="nav-item-dashboard">
-                <button class="nav-link-dashboard" onclick="switchModule('quincho', this)">
+                <button class="nav-link-dashboard nav-link-dev" onclick="switchModule('quincho', this)">
                     <i class="fas fa-home"></i> Quincho
                 </button>
             </div>
             <div class="nav-item-dashboard">
-                <button class="nav-link-dashboard" onclick="switchModule('deportes', this)">
+                <button class="nav-link-dashboard nav-link-dev" onclick="switchModule('deportes', this)">
                     <i class="fas fa-running"></i> Deportes
                 </button>
             </div>
             <div class="nav-item-dashboard">
-                <button class="nav-link-dashboard" onclick="switchModule('proveduria', this)">
+                <button class="nav-link-dashboard nav-link-dev" onclick="switchModule('proveduria', this)">
                     <i class="fas fa-shopping-basket"></i> Proveduría
                 </button>
             </div>
             <div class="nav-item-dashboard">
-                <button class="nav-link-dashboard" onclick="switchModule('farmacia', this)">
+                <button class="nav-link-dashboard nav-link-dev" onclick="switchModule('farmacia', this)">
                     <i class="fas fa-briefcase-medical"></i> Farmacia
                 </button>
             </div>
             <div class="nav-item-dashboard">
-                <button class="nav-link-dashboard" onclick="switchModule('capacitacion', this)">
+                <button class="nav-link-dashboard nav-link-dev" onclick="switchModule('capacitacion', this)">
                     <i class="fas fa-chalkboard-teacher"></i> Capacitación
-                </button>
-            </div>
-            <div class="nav-item-dashboard">
-                <button class="nav-link-dashboard" onclick="switchModule('afiliacion', this)">
-                    <i class="fas fa-user-plus"></i> Afiliación
                 </button>
             </div>
         </nav>
@@ -608,11 +640,6 @@
                             <p class="mb-0 text-muted small fw-bold">Solicitudes Afiliación</p>
                         </div>
                     </div>
-                </div>
-                <div class="table-container text-center py-5">
-                    <img src="../logo_STM.png" width="100"
-                        class="opacity-10 mb-3 animate__animated animate__pulse animate__infinite">
-                    <h5 class="fw-black text-slate-400">Bienvenido al Centro de Control STM</h5>
                 </div>
             </div>
 
@@ -937,7 +964,7 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwqTfZtp4bx4jCb7HufNlAi8kLOeYVwIggC-1g0tUNjqad3r2a8FeohMyKtXrCvDfo-/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzuxst6AukDqEOH36tLRZlIY2T_bzPZuIgdVQAkfc4L8vTeS0aw8DreuisQASBQoOU/exec';
 
         let activeTab = 'Convenios';
         let activeModule = 'inicio';
@@ -1054,16 +1081,33 @@
             statRecibidos.innerText = unreadCount;
 
             if (unreadCount > 0) {
-                statRecibidos.parentElement.parentElement.classList.add('blink-btn');
+                statRecibidos.parentElement.parentElement.classList.add('blink-red');
                 statRecibidos.parentElement.parentElement.classList.remove('stat-card-disabled');
-                if (navRecibidos) navRecibidos.classList.add('blink-btn');
+                if (navRecibidos) navRecibidos.classList.add('blink-red');
             } else {
-                statRecibidos.parentElement.parentElement.classList.remove('blink-btn');
+                statRecibidos.parentElement.parentElement.classList.remove('blink-red');
                 statRecibidos.parentElement.parentElement.classList.add('stat-card-disabled');
-                if (navRecibidos) navRecibidos.classList.remove('blink-btn');
+                if (navRecibidos) navRecibidos.classList.remove('blink-red');
             }
 
-            document.getElementById('stat-afiliaciones').innerText = dataStore.Afiliaciones.length;
+            const statAfiliaciones = document.getElementById('stat-afiliaciones');
+            const navAfiliaciones = document.getElementById('nav-afiliaciones');
+            statAfiliaciones.innerText = dataStore.Afiliaciones.length;
+
+            const todayISO = new Date().toISOString().split('T')[0];
+            const hasNewAfiliationToday = dataStore.Afiliaciones.some(af => {
+                // El formato suele ser YYYY-MM-DD
+                const afDate = (af.fecha_solicitud || "").toString();
+                return afDate.includes(todayISO);
+            });
+
+            if (hasNewAfiliationToday) {
+                statAfiliaciones.parentElement.parentElement.classList.add('blink-red');
+                if (navAfiliaciones) navAfiliaciones.classList.add('blink-red');
+            } else {
+                statAfiliaciones.parentElement.parentElement.classList.remove('blink-red');
+                if (navAfiliaciones) navAfiliaciones.classList.remove('blink-red');
+            }
         }
 
         function checkIncomingMessages() {
@@ -1169,16 +1213,18 @@
         function renderAfiliaciones() {
             const tbody = document.querySelector('#tableAfiliaciones tbody');
             if (!tbody) return;
+
+            // Ordenamos del más reciente al más antiguo
             const sorted = [...dataStore.Afiliaciones].sort((a, b) => {
-                const dateA = new Date(a.fechasolicitud || a.fecha);
-                const dateB = new Date(b.fechasolicitud || b.fecha);
+                const dateA = new Date(a.fecha_solicitud || 0);
+                const dateB = new Date(b.fecha_solicitud || 0);
                 return dateB - dateA;
             });
 
             tbody.innerHTML = sorted.map(af => `
                 <tr>
-                    <td><small class="fw-bold text-slate-400">${formatDisplayDate(af.fechasolicitud || af.fecha)}</small></td>
-                    <td class="fw-bold text-slate-700">${af.nom_ap}</td>
+                    <td><small class="fw-bold text-slate-400">${formatDisplayDate(af.fecha_solicitud || af.fecha)}</small></td>
+                    <td class="fw-bold text-slate-700">${af.nom_ap || '-'}</td>
                     <td><span class="badge-user">${af.legajo || '-'}</span></td>
                     <td><span class="badge-permiso">${af.dni || '-'}</span></td>
                     <td><small class="text-muted fw-bold">${af.telefono || '-'}</small></td>
@@ -1383,7 +1429,7 @@
                 html = `<div class="row"><div class="col-6 mb-3"><label class="form-label fw-bold small">Apellido</label><input type="text" class="form-control" name="apellido" id="inputApellido" value="${data?.apellido || ''}" oninput="generateUsername()" required></div>
                         <div class="col-6 mb-3"><label class="form-label fw-bold small">Nombre</label><input type="text" class="form-control" name="nombre" id="inputNombre" value="${data?.nombre || ''}" oninput="generateUsername()" required></div></div>
                         <div class="row"><div class="col-6 mb-3"><label class="form-label fw-bold small">Usuario</label><input type="text" class="form-control" name="usuario" id="inputUsuario" value="${data?.usuario || data?.user || ''}" required></div>
-                        <div class="col-6 mb-3"><label class="form-label fw-bold small">Clave</label><input type="text" class="form-control" name="password" id="inputPassword" value="${data?.password || ''}" placeholder="${generateRandomString(8)}" required></div></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold small">Clave</label><input type="text" class="form-control" name="password" id="inputPassword" value="${data?.password || ''}" placeholder="" required></div></div>
                         <div class="mb-3"><label class="form-label fw-bold small">Permiso</label><select class="form-select" name="permiso"><option value="USER">USER</option><option value="ADMIN" ${data?.permiso === 'ADMIN' ? 'selected' : ''}>ADMIN</option></select></div>`;
             } else if (activeTab === 'Mensajes') {
                 const opts = dataStore.Usuarios.map(u => `<option value="${u.id}">${u.apellido}, ${u.nombre}</option>`).join('');
