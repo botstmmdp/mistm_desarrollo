@@ -40,8 +40,9 @@
                 botNews = (json.table.rows || []).map(r => ({
                     id: (r.c[0]?.v || "").toString(),
                     titulo: (r.c[1]?.v || "").toString(),
-                    desc:   (r.c[2]?.v || "").toString()
-                }));
+                    desc:   (r.c[2]?.v || "").toString(),
+                    activo: (r.c[4]?.v || "").toString().trim().toUpperCase() === "SI"
+                })).filter(n => n.activo);
             } catch (e) { console.warn("Bot: Error cargando Novedades dinámicas", e); }
         }
         
