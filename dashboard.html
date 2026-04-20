@@ -13,6 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -473,6 +474,168 @@
         .action-btn:hover {
             transform: translateY(-2px);
         }
+
+        /* --- QUINCHO MODULE STYLES --- */
+        .q-calendar-container {
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.3s ease;
+        }
+
+        .q-calendar-header {
+            padding: 20px 30px;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .q-current-month {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: capitalize;
+            margin: 0;
+        }
+
+        .q-nav-buttons .btn {
+            border: 1px solid #e2e8f0;
+            color: var(--primary);
+            background: white;
+            border-radius: 10px;
+            font-weight: 700;
+            padding: 5px 15px;
+            transition: all 0.2s;
+        }
+
+        .q-nav-buttons .btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .q-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #e2e8f0;
+        }
+
+        .q-weekday {
+            padding: 12px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            background-color: #f8fafc;
+        }
+
+        .q-day {
+            min-height: 120px;
+            padding: 12px;
+            background-color: var(--white);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .q-day:hover:not(.other-month):not(.past-date) {
+            background-color: #f1f5f9;
+            z-index: 2;
+        }
+
+        .q-day.other-month {
+            background-color: #f8fafc;
+            color: #cbd5e1;
+            cursor: default;
+        }
+
+        .q-day.past-date {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .q-day.disabled-date {
+            background-color: #fef2f2;
+        }
+
+        .q-day-number {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .q-slot-badge {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .q-slots-available {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #10b98133;
+        }
+
+        .q-slots-occupied {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #f9731633;
+            animation: blinker 2s linear infinite;
+        }
+
+        .q-day.occupied-date {
+            background-color: #fef9c3 !important;
+            /* Amarillo suave */
+            border-color: #fde047 !important;
+            color: #854d0e !important;
+        }
+
+        .q-day.occupied-date .q-slots-occupied {
+            background: #fde047;
+            color: #854d0e;
+        }
+
+        .q-slots-full {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #ef444433;
+        }
+
+        .q-slots-pending {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f644;
+            animation: pulse-blue 2s infinite;
+        }
+
+        @keyframes pulse-blue {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+
+        /* Asegurar que el modal de confirmación esté por encima de otros modales */
+        #confirmModal {
+            z-index: 2060 !important;
+        }
     </style>
 </head>
 
@@ -521,12 +684,14 @@
                 </button>
             </div>
             <div class="nav-item-dashboard">
-                <button id="nav-afiliaciones" class="nav-link-dashboard" onclick="switchModule('afiliaciones', this); loadData();">
+                <button id="nav-afiliaciones" class="nav-link-dashboard"
+                    onclick="switchModule('afiliaciones', this); loadData();">
                     <i class="fas fa-user-plus"></i> Solicitudes Afiliación
                 </button>
             </div>
             <div class="nav-item-dashboard">
-                <button class="nav-link-dashboard" onclick="switchModule('quincho', this); loadData();">
+                <button id="nav-quincho" class="nav-link-dashboard"
+                    onclick="switchModule('quincho', this); loadData();">
                     <i class="fas fa-home"></i> Quincho
                 </button>
             </div>
@@ -638,6 +803,14 @@
                         <div>
                             <h3 class="mb-0 fw-black" id="stat-afiliaciones">0</h3>
                             <p class="mb-0 text-muted small fw-bold">Solicitudes Afiliación</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" id="stat-card-quincho">
+                        <div class="stat-icon" style="background: rgba(55, 48, 107, 0.1); color: var(--accent);"><i
+                                class="fas fa-calendar-check"></i></div>
+                        <div>
+                            <h3 class="mb-0 fw-black" id="stat-quincho">0</h3>
+                            <p class="mb-0 text-muted small fw-bold">Solicitudes Quincho</p>
                         </div>
                     </div>
                 </div>
@@ -807,16 +980,38 @@
                 </div>
             </div>
 
-            <!-- OTROS MÓDULOS (EN DESARROLLO) -->
+            <!-- MODULE: QUINCHO -->
             <div id="module-quincho" class="module d-none animate__animated animate__fadeIn">
-                <div class="text-center py-5">
-                    <div class="mb-4 d-inline-block p-4 rounded-circle bg-slate-100">
-                        <i class="fas fa-home fa-4x text-slate-300"></i>
+                <div class="module-header">
+                    <h4 class="fw-black m-0">Gestión de Solicitudes: Quincho</h4>
+                    <div class="d-flex gap-2">
+                        <button class="btn-premium bg-slate-100 text-slate-600" onclick="goToToday()">
+                            Hoy
+                        </button>
                     </div>
-                    <h3 class="fw-black text-slate-400">Módulo Quincho</h3>
-                    <p class="text-muted fw-medium max-w-md mx-auto">Próximamente.</p>
-                    <span class="badge rounded-pill bg-slate-200 text-slate-500 px-3 py-2">PRÓXIMAMENTE</span>
                 </div>
+
+                <div class="q-calendar-container animate__animated animate__fadeIn">
+                    <div class="q-calendar-header">
+                        <h2 class="q-current-month" id="qMonthDisplay">--- 2024</h2>
+                        <div class="q-nav-buttons">
+                            <button class="btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <button class="btn ms-2" onclick="changeMonth(1)"><i
+                                    class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="q-calendar-grid" id="qCalendarGrid">
+                        <div class="q-weekday">Lun</div>
+                        <div class="q-weekday">Mar</div>
+                        <div class="q-weekday">Mié</div>
+                        <div class="q-weekday">Jue</div>
+                        <div class="q-weekday">Vie</div>
+                        <div class="q-weekday">Sáb</div>
+                        <div class="q-weekday">Dom</div>
+                    </div>
+                </div>
+
             </div>
 
             <div id="module-deportes" class="module d-none animate__animated animate__fadeIn">
@@ -915,7 +1110,6 @@
         </div>
     </div>
 
-    </div>
 
     <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -931,49 +1125,94 @@
         </div>
     </div>
 
-    <!-- MODAL MENSAJE RECIBIDO (PROCESO DE ALERTA) -->
-    <div class="modal fade" id="modalRecibidoMsg" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content shadow-lg border-0" style="border-radius: 1.5rem;">
-                <div class="modal-body p-4 text-center">
-                    <div class="stat-icon bg-red-soft mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
-                        <i class="fas fa-envelope-open-text animate__animated animate__bounce animate__infinite"></i>
-                    </div>
-                    <h4 class="fw-black mb-1">¡Nuevo Mensaje Recibido!</h4>
-                    <p class="text-muted small mb-4">Un usuario ha enviado una consulta desde la Web/App</p>
-
-                    <div class="p-3 bg-light rounded-4 text-start mb-4 border">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <img id="alertUserImg" src="" class="rounded-circle" width="30">
-                            <span id="alertUserName" class="fw-bold small text-slate-700">Usuario...</span>
-                        </div>
-                        <p id="alertUserMsg" class="mb-0 small text-slate-600" style="font-style: italic;">"Cargando
-                            mensaje..."</p>
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        <button type="button" class="btn-premium btn-accent-p" onclick="markAsReadAndClose()">
-                            <i class="fas fa-check-circle me-2"></i> Marcar como visto
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL INFO AFILIACION -->
     <div class="modal fade" id="modalAfiliacionInfo" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content shadow-lg border-0" style="border-radius: 1.5rem;">
                 <div class="modal-header border-0 p-4">
-                    <h5 class="modal-title fw-black"><i class="fas fa-id-card me-2" style="color: var(--accent);"></i> Datos de Afiliación</h5>
+                    <h5 class="modal-title fw-black"><i class="fas fa-id-card me-2" style="color: var(--accent);"></i>
+                        Datos de Afiliación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4 pt-0" id="afiliacionInfoBody">
                     <!-- Contenido dinámico -->
                 </div>
                 <div class="modal-footer border-0 p-4 pt-0 d-flex justify-content-center">
-                    <button type="button" class="btn-premium bg-slate-100 text-slate-600 px-5" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn-premium bg-slate-100 text-slate-600 px-5"
+                        data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALES QUINCHO -->
+    <div class="modal fade" id="qBookingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h5 class="modal-title fw-black text-dark"><i class="fas fa-utensils text-primary me-2"></i>
+                        Gestionar Fecha</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="qBookingDateText"
+                        class="badge bg-slate-100 text-slate-600 px-3 py-2 mb-4 rounded-pill fw-bold">FECHA: -- / -- /
+                        --</div>
+
+                    <form id="qBookingForm">
+                        <input type="hidden" id="qBookingIso">
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold small">Apellido</label>
+                                <input type="text" class="form-control" id="qBookApellido" placeholder="Apellido...">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold small">Nombre</label>
+                                <input type="text" class="form-control" id="qBookNombre" placeholder="Nombre...">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small">Teléfono de Contacto</label>
+                            <input type="tel" class="form-control" id="qBookTel" placeholder="Ej: 223 1234567">
+                        </div>
+                        <button type="button" id="qSubmitBtn" class="btn-premium btn-accent-p w-100 mb-2"
+                            onclick="qSubmitBooking()">
+                            <i class="fas fa-check-circle me-2"></i> Confirmar Solicitud
+                        </button>
+
+                        <button type="button" id="qRejectBtn" class="btn-premium bg-danger text-white w-100 mb-2"
+                            onclick="qRejectBookingAction()" style="display:none;">
+                            <i class="fas fa-times-circle me-2"></i> Rechazar Solicitud
+                        </button>
+
+                        <button type="button" id="qCancelBtn" class="btn-premium bg-red-soft text-danger w-100 mb-4"
+                            onclick="qCancelarTurnoDirecto()" style="display:none;">
+                            <i class="fas fa-trash-alt me-2"></i> Liberar Fecha
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LISTADO INSCRIPTOS QUINCHO -->
+    <div class="modal fade" id="qInscriptosModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 1.5rem;">
+                <div class="modal-header border-0 p-4 shadow-sm">
+                    <h5 class="modal-title fw-black"><i class="fas fa-users text-primary me-2"></i> Registros para el
+                        <span id="qInscDate">--</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="qInscList" class="p-4" style="background:#f8fafc; min-height: 200px;">
+                        <!-- Dinámico -->
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3">
+                    <button class="btn-premium bg-slate-100 text-slate-600 px-4" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -982,7 +1221,7 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzuxst6AukDqEOH36tLRZlIY2T_bzPZuIgdVQAkfc4L8vTeS0aw8DreuisQASBQoOU/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZBCHVN9s4zqywy7WELZmPYzFyLnB-ilop3tC5hUeBLrka_zaQup7E1vcB3vHEQIhc/exec';
 
         let activeTab = 'Convenios';
         let activeModule = 'inicio';
@@ -993,7 +1232,9 @@
             Usuarios: [],
             Mensajes: [],
             MensajesRecibidos: [],
-            Afiliaciones: []
+            Afiliaciones: [],
+            FechasQuincho: [],
+            SolicitudesQuincho: []
         };
 
         // Protección de Ruta (Se ejecuta al cargar)
@@ -1001,7 +1242,7 @@
             const isLogged = sessionStorage.getItem('isLogged') === 'true';
             const userPerm = sessionStorage.getItem('usrPermiso');
             const allowedRoles = ['ADMIN', 'PROVEEDURIA', 'FARMACIA', 'DEPORTE', 'CAPACITACION'];
-            
+
             if (!isLogged || !allowedRoles.includes(userPerm)) {
                 window.location.replace('index-dashboard.html');
                 return false;
@@ -1026,7 +1267,7 @@
 
             const usuarioLogueado = sessionStorage.getItem('usuario_nombre');
             const userPermiso = sessionStorage.getItem('usrPermiso');
-            
+
             document.getElementById('adminName').innerText = usuarioLogueado ? usuarioLogueado.toUpperCase() : 'ADMINISTRADOR';
             if (userPermiso) {
                 document.getElementById('adminRole').innerText = `PERMISO: ${userPermiso.toUpperCase()}`;
@@ -1053,15 +1294,15 @@
             };
 
             const allowed = permissions[perm] || [];
-            
+
             document.querySelectorAll('.nav-item-dashboard').forEach(item => {
                 const btn = item.querySelector('button');
                 if (!btn) return;
                 const text = btn.innerText.trim().toUpperCase();
-                
+
                 // Estos siempre son visibles o se manejan aparte
                 if (text === 'CERRAR SESIÓN') return;
-                
+
                 if (!allowed.includes(text)) {
                     item.style.display = 'none';
                 }
@@ -1104,28 +1345,30 @@
                 'capacitacion': 'Capacitación'
             };
             activeTab = tabMap[moduleId] || 'Convenios';
+
+            if (moduleId === 'quincho') {
+                qInit();
+            }
         }
 
         async function loadData() {
             toggleLoader(true);
             try {
-                console.log("Conectando con URL:", WEB_APP_URL);
-                const response = await fetch(WEB_APP_URL);
+                const finalUrl = `${WEB_APP_URL}?_=${Date.now()}`;
+                console.log("🚀 Intentando conectar con Backend...");
+
+                const response = await fetch(finalUrl, {
+                    method: 'GET',
+                    mode: 'cors',
+                    credentials: 'omit'
+                });
 
                 if (!response.ok) {
-                    throw new Error(`Servidor fuera de línea o URL incorrecta (${response.status})`);
+                    throw new Error(`Estado HTTP: ${response.status}`);
                 }
 
-                const text = await response.text();
-                let result;
-                try {
-                    result = JSON.parse(text);
-                } catch (e) {
-                    console.error("La respuesta no es un JSON válido. Servidor respondió:", text);
-                    throw new Error("Respuesta del servidor inválida (No es JSON)");
-                }
-
-                console.log("✅ Datos cargados:", result);
+                const result = await response.json();
+                console.log("✅ Datos recibidos con éxito:", result);
 
                 if (result.status === 'ERROR') {
                     throw new Error(result.message);
@@ -1137,6 +1380,8 @@
                 dataStore.Mensajes = result.MENSAJES || [];
                 dataStore.MensajesRecibidos = result.MENSAJES_RECIBIDOS || [];
                 dataStore.Afiliaciones = result.AFILIACIONES || [];
+                dataStore.FechasQuincho = result.FECHAS_QUINCHO || [];
+                dataStore.SolicitudesQuincho = result.SOLICITUD_QUINCHO || [];
 
                 updateRubrosDatalist();
                 updateStats();
@@ -1144,8 +1389,8 @@
                 checkIncomingMessages();
 
             } catch (err) {
-                console.error("❌ ERROR TÉCNICO:", err.message);
-                showFeedback(`Error: ${err.message}`, false);
+                console.error("❌ ERROR RED/CORS:", err);
+                showFeedback(`Error de conexión: Verifique si la WebApp está desplegada para 'Cualquiera' con acceso público.`, false);
             }
             toggleLoader(false);
         }
@@ -1186,12 +1431,38 @@
                 return afDate.includes(todayISO);
             });
 
-            if (hasNewAfiliationToday) {
-                statAfiliaciones.parentElement.parentElement.classList.add('blink-red');
-                if (navAfiliaciones) navAfiliaciones.classList.add('blink-red');
+            if (dataStore.Afiliaciones.length > 0) {
+                statAfiliaciones.parentElement.parentElement.classList.remove('stat-card-disabled');
+                if (hasNewAfiliationToday) {
+                    statAfiliaciones.parentElement.parentElement.classList.add('blink-red');
+                    if (navAfiliaciones) navAfiliaciones.classList.add('blink-red');
+                } else {
+                    statAfiliaciones.parentElement.parentElement.classList.remove('blink-red');
+                    if (navAfiliaciones) navAfiliaciones.classList.remove('blink-red');
+                }
             } else {
+                statAfiliaciones.parentElement.parentElement.classList.add('stat-card-disabled');
                 statAfiliaciones.parentElement.parentElement.classList.remove('blink-red');
                 if (navAfiliaciones) navAfiliaciones.classList.remove('blink-red');
+            }
+
+            // Quincho Stats - Contador enfocado SOLO en solicitudes PENDIENTES de aprobar (de la app)
+            const unreadQuincho = dataStore.SolicitudesQuincho.filter(s => (s.pendiente || "").toString().toUpperCase() === 'SI').length;
+
+            // Se muestra solo lo PENDIENTE en el número principal
+            document.getElementById('stat-quincho').innerText = unreadQuincho;
+
+            const statQuincho = document.getElementById('stat-card-quincho');
+            const navQuincho = document.getElementById('nav-quincho');
+
+            if (unreadQuincho > 0) {
+                statQuincho.classList.remove('stat-card-disabled');
+                statQuincho.classList.add('blink-red');
+                if (navQuincho) navQuincho.classList.add('blink-red');
+            } else {
+                statQuincho.classList.add('stat-card-disabled');
+                statQuincho.classList.remove('blink-red');
+                if (navQuincho) navQuincho.classList.remove('blink-red');
             }
         }
 
@@ -1316,7 +1587,7 @@
                     <td><small class="text-muted">${af.email || '-'}</small></td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center gap-2">
-                             <div class="action-btn btn-msg" onclick="showAfiliacionInfo('${af.id}')" title="Ver detalle"><i class="fas fa-eye"></i></div>
+                             <div class="action-btn btn-msg" onclick="showAfiliacionInfo('${af.id}')" title="Ver Detalles"><i class="fas fa-eye"></i></div>
                              <div class="action-btn btn-delete" onclick="deleteEntry('AFILIACIONES', ${af.id})"><i class="fas fa-trash"></i></div>
                         </div>
                     </td>
@@ -1656,7 +1927,7 @@
         function showFeedback(msg, isSuccess) { const f = document.getElementById('feedbackMessage'); f.innerText = msg; f.className = `feedback show ${isSuccess ? 'success' : 'error'}`; setTimeout(() => f.classList.remove('show'), 3000); }
         function showConfirm(title, msg, onConfirm) { document.getElementById('confirmTitle').innerText = title; document.getElementById('confirmMessage').innerText = msg; const btn = document.getElementById('confirmBtnAction'); btn.onclick = () => { confirmModal.hide(); onConfirm(); }; confirmModal.show(); }
         function toggleLoader(show) { document.getElementById('loadingOverlay').classList.toggle('visible', show); }
-        function logout() { 
+        function logout() {
             sessionStorage.clear();
             localStorage.removeItem('isLogged');
             localStorage.removeItem('usrID');
@@ -1664,14 +1935,602 @@
             localStorage.removeItem('usrName');
             localStorage.removeItem('usrFullName');
             localStorage.removeItem('usrPermiso');
-            window.location.href = 'index-dashboard.html'; 
+            window.location.href = 'index-dashboard.html';
         }
-        function formatDateForInput(ds) { if (!ds) return ""; const d = new Date(ds); return isNaN(d.getTime()) ? "" : d.toISOString().split('T')[0]; }
+        // Helpers de Fecha Robustos (Fix para evitar desfase de 1 día en Argentina/UTC)
+        const qParse = (v) => {
+            if (!v) return new Date(NaN);
+            if (v instanceof Date) return v;
+            if (typeof v === 'number') return new Date(v);
+            const s = v.toString().trim();
+            // 1. Intentar DD/MM/YYYY
+            const p1 = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (p1) return new Date(parseInt(p1[3]), parseInt(p1[2]) - 1, parseInt(p1[1]));
+            // 2. Intentar YYYY-MM-DD (Manual para evitar interpretación UTC del navegador)
+            const p2 = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+            if (p2) return new Date(parseInt(p2[1]), parseInt(p2[2]) - 1, parseInt(p2[3]));
+            // Fallback
+            return new Date(s);
+        };
+        const qToISO = (d) => {
+            const _d = qParse(d);
+            if (isNaN(_d.getTime())) return "";
+            return `${_d.getFullYear()}-${String(_d.getMonth() + 1).padStart(2, '0')}-${String(_d.getDate()).padStart(2, '0')}`;
+        };
+        const qToSheet = (d) => {
+            const _d = qParse(d);
+            if (isNaN(_d.getTime())) return "";
+            return `${String(_d.getDate()).padStart(2, '0')}/${String(_d.getMonth() + 1).padStart(2, '0')}/${_d.getFullYear()}`;
+        };
+
+        function formatDateForInput(ds) { return qToISO(ds); }
+        // --- MÓDULO QUINCHO LOGIC ---
+        let qCurrentDate = new Date();
+        let qTurnosConfig = {};
+        let qBookingModal, qInscriptosModal;
+
+        function qInit() {
+            qBookingModal = new bootstrap.Modal(document.getElementById('qBookingModal'));
+            qInscriptosModal = new bootstrap.Modal(document.getElementById('qInscriptosModal'));
+
+            // Construir qTurnosConfig desde el dataStore (Backend)
+            qTurnosConfig = {};
+
+            // 1. Procesar Fechas Habilitadas (Si no está aquí, está bloqueada)
+            dataStore.FechasQuincho.forEach(row => {
+                const iso = qToISO(row.fecha);
+                if (!iso) return;
+                qTurnosConfig[iso] = {
+                    enabled: true,
+                    occupied: ((row.estado || "").toString().toUpperCase() === 'OCUPADO' ? 1 : 0),
+                    backend_id: row.id
+                };
+            });
+
+            // 2. Procesar Datos de Solicitudes (Nombre/Tel)
+            dataStore.SolicitudesQuincho.forEach(sol => {
+                const dateVal = sol.fecha_solicitada || sol.fecha;
+                if (!dateVal) return;
+                const iso = qToISO(dateVal);
+                if (qTurnosConfig[iso]) {
+                    // Soporte robusto para cualquier variación de las cabeceras (mayús/minús/tel)
+                    let nombre = sol.Nombre || sol.nombre || "";
+                    let apellido = sol.Apellido || sol.apellido || "";
+                    let phone = sol.Telefono || sol.telefono || sol.tel || sol.Telefono || "";
+
+                    if (!nombre && !apellido && sol.id_user) {
+                        const usr = dataStore.Usuarios.find(u => u.id.toString() === sol.id_user.toString());
+                        if (usr) {
+                            nombre = usr.nombre || "";
+                            apellido = usr.apellido || "";
+                            phone = usr.telefono || usr.tel || usr.usuario || usr.user || "";
+                        }
+                    }
+
+                    qTurnosConfig[iso].nombre = nombre;
+                    qTurnosConfig[iso].apellido = apellido;
+                    qTurnosConfig[iso].telefono = phone;
+                    qTurnosConfig[iso].solicitud_id = sol.id;
+                    qTurnosConfig[iso].pendiente = (sol.pendiente || "NO").toString().toUpperCase() === 'SI';
+                }
+            });
+
+            renderQCalendar();
+        }
+
+        function renderQCalendar() {
+            const grid = document.getElementById('qCalendarGrid');
+            const monthDisplay = document.getElementById('qMonthDisplay');
+            const headers = Array.from(grid.querySelectorAll('.q-weekday'));
+            grid.innerHTML = '';
+            headers.forEach(h => grid.appendChild(h));
+
+            const year = qCurrentDate.getFullYear();
+            const month = qCurrentDate.getMonth();
+            const names = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            monthDisplay.innerText = `${names[month]} ${year}`;
+
+            const first = new Date(year, month, 1).getDay();
+            let offset = (first === 0) ? 6 : first - 1;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const prevMonthLast = new Date(year, month, 0).getDate();
+
+            for (let i = offset; i > 0; i--) {
+                const d = document.createElement('div');
+                d.className = 'q-day other-month';
+                d.innerHTML = `<span class="q-day-number">${prevMonthLast - i + 1}</span>`;
+                grid.appendChild(d);
+            }
+
+            const todayStr = qToISO(new Date());
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateObj = new Date(year, month, d);
+                const iso = qToISO(dateObj);
+                // POR DEFECTO: Las fechas están Bloqueadas (No habilitadas) si no están en el backend
+                const cfg = qTurnosConfig[iso] || { enabled: false, slots: 1, occupied: 0 };
+                const isToday = iso === todayStr;
+                const isPast = iso < todayStr;
+
+                const dayDiv = document.createElement('div');
+                dayDiv.className = `q-day ${cfg.enabled ? (cfg.occupied > 0 ? 'occupied-date' : '') : 'disabled-date'} ${isPast ? 'past-date' : ''}`;
+                if (isToday) dayDiv.style.border = "2px solid var(--primary)";
+
+                let statusHtml = '';
+                if (!isPast) {
+                    if (cfg.pendiente) {
+                        statusHtml = `<div class="q-slot-badge q-slots-pending">PEDIDO PENDIENTE</div>`;
+                    } else if (cfg.occupied > 0) {
+                        statusHtml = `<div class="q-slot-badge q-slots-occupied">OCUPADO</div>`;
+                    } else if (cfg.enabled) {
+                        statusHtml = `<div class="q-slot-badge q-slots-available">DISPONIBLE</div>`;
+                    } else {
+                        statusHtml = `<div class="q-slot-badge q-slots-full">BLOQUEAD0</div>`;
+                    }
+                }
+
+                dayDiv.innerHTML = `
+                    <span class="q-day-number">${d} ${isToday ? '<small class="badge bg-primary" style="font-size:0.5rem">HOY</small>' : ''}</span>
+                    <div class="mt-auto">${statusHtml}</div>
+                `;
+
+                if (!isPast) {
+                    dayDiv.style.cursor = "pointer";
+                    dayDiv.onclick = (e) => {
+                        e.preventDefault();
+                        const currentCfg = qTurnosConfig[iso] || { enabled: false, slots: 1, occupied: 0 };
+
+                        if (!currentCfg.enabled) {
+                            // 1. SI ESTÁ BLOQUEADA -> Preguntar para Habilitar
+                            Swal.fire({
+                                title: '¿Habilitar fecha?',
+                                text: `¿Deseas habilitar el ${qToSheet(iso)} para reservas?`,
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#1e1b3a',
+                                confirmButtonText: 'Sí, habilitar',
+                                cancelButtonText: 'No'
+                            }).then((result) => {
+                                if (result.isConfirmed) qQuickStatusDirect(iso, true);
+                            });
+                        } else if (currentCfg.pendiente || currentCfg.occupied > 0) {
+                            // 2. SI ESTÁ OCUPADA O PENDIENTE -> Abrir Modal para ver quién es o confirmar
+                            qOpenBooking(iso, currentCfg);
+                        } else {
+                            // 3. SI ESTÁ DISPONIBLE -> Preguntar si desea Bloquear o Registrar manual
+                            Swal.fire({
+                                title: 'Gestión de Fecha',
+                                text: `¿Qué deseas hacer con el día ${qToSheet(iso)}?`,
+                                icon: 'info',
+                                showCancelButton: true,
+                                showDenyButton: true,
+                                confirmButtonColor: '#ef4444',
+                                denyButtonColor: '#1e1b3a',
+                                confirmButtonText: 'Bloquear Fecha',
+                                denyButtonText: 'Registrar Reserva',
+                                cancelButtonText: 'Cancelar'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    qQuickStatusDirect(iso, false);
+                                } else if (result.isDenied) {
+                                    qOpenBooking(iso, currentCfg);
+                                }
+                            });
+                        }
+                    };
+                }
+                grid.appendChild(dayDiv);
+            }
+        }
+
+        function changeMonth(dir) {
+            qCurrentDate.setMonth(qCurrentDate.getMonth() + dir);
+            renderQCalendar();
+        }
+
+        function goToToday() {
+            qCurrentDate = new Date();
+            renderQCalendar();
+        }
+
+        function qOpenBooking(iso, cfg) {
+            document.getElementById('qBookingIso').value = iso;
+            document.getElementById('qBookingDateText').innerText = "FECHA SELECCIONADA: " + qToSheet(iso);
+
+            let nombre = cfg.nombre || "";
+            let apellido = cfg.apellido || "";
+            let telefono = cfg.telefono || cfg.tel || "";
+
+            // Si faltan datos en la configuración local del calendario, buscamos en el almacén de datos
+            if (!nombre && !apellido && (cfg.occupied > 0 || cfg.pendiente)) {
+                const sol = dataStore.SolicitudesQuincho.find(s => qToISO(s.fecha_solicitada || s.fecha) === iso);
+                if (sol) {
+                    nombre = sol.Nombre || sol.nombre || "";
+                    apellido = sol.Apellido || sol.apellido || "";
+                    telefono = sol.Telefono || sol.telefono || sol.tel || "";
+
+                    if (!nombre && !apellido && sol.id_user) {
+                        const usr = dataStore.Usuarios.find(u => u.id && u.id.toString() === sol.id_user.toString());
+                        if (usr) {
+                            nombre = usr.nombre || "";
+                            apellido = usr.apellido || "";
+                            telefono = usr.Telefono || usr.telefono || usr.tel || usr.usuario || usr.user || "";
+                        }
+                    }
+                    cfg.solicitud_id = sol.id;
+                    cfg.id_user = sol.id_user; // Guardamos para la notificación posterior
+                }
+            }
+
+            document.getElementById('qBookNombre').value = nombre;
+            document.getElementById('qBookApellido').value = apellido;
+            document.getElementById('qBookTel').value = telefono;
+
+            const cancelBtn = document.getElementById('qCancelBtn');
+            const submitBtn = document.getElementById('qSubmitBtn');
+            const modalTitle = document.querySelector('#qBookingModal .modal-title');
+
+            // Botón de aprobación rápida
+            const existingConfirmBtn = document.getElementById('qConfirmFastBtn');
+            if (existingConfirmBtn) existingConfirmBtn.remove();
+
+            const rejectBtn = document.getElementById('qRejectBtn');
+
+            if (cfg.pendiente) {
+                cancelBtn.style.display = 'none';
+                if (rejectBtn) rejectBtn.style.display = 'block';
+                submitBtn.style.display = 'none';
+                modalTitle.innerHTML = '<i class="fas fa-bell text-primary me-2"></i> Pedido Pendiente App';
+
+                document.getElementById('qBookNombre').readOnly = false;
+                document.getElementById('qBookApellido').readOnly = false;
+                document.getElementById('qBookTel').readOnly = false;
+
+                const confirmFastBtn = document.createElement('button');
+                confirmFastBtn.id = 'qConfirmFastBtn';
+                confirmFastBtn.className = 'btn-premium bg-success text-white w-100 mb-2';
+                confirmFastBtn.innerHTML = '<i class="fas fa-check-double me-2"></i> APROBAR Y OCUPAR FECHA';
+                confirmFastBtn.onclick = () => qConfirmBooking(iso, cfg);
+                submitBtn.parentNode.insertBefore(confirmFastBtn, submitBtn);
+
+            } else if (cfg.occupied > 0) {
+                cancelBtn.style.display = 'block';
+                if (rejectBtn) rejectBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+                document.getElementById('qBookNombre').readOnly = false;
+                document.getElementById('qBookApellido').readOnly = false;
+                document.getElementById('qBookTel').readOnly = false;
+                submitBtn.innerHTML = '<i class="fas fa-save me-2"></i> Guardar Cambios';
+                modalTitle.innerHTML = '<i class="fas fa-user-edit text-primary me-2"></i> Editar Solicitud';
+            } else {
+                cancelBtn.style.display = 'none';
+                if (rejectBtn) rejectBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+                document.getElementById('qBookNombre').readOnly = false;
+                document.getElementById('qBookApellido').readOnly = false;
+                document.getElementById('qBookTel').readOnly = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Confirmar Solicitud';
+                modalTitle.innerHTML = '<i class="fas fa-utensils text-primary me-2"></i> Nueva Solicitud';
+            }
+
+            qBookingModal.show();
+        }
+
+        async function qRejectBookingAction() {
+            const iso = document.getElementById('qBookingIso').value;
+            const cfg = qTurnosConfig[iso];
+            if (!cfg || !cfg.solicitud_id) return;
+
+            const confirm = await Swal.fire({
+                title: '¿Rechazar solicitud?',
+                text: 'Se eliminará la solicitud y se notificará al usuario.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Sí, rechazar',
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (confirm.isConfirmed) {
+                toggleLoader(true);
+                try {
+                    // 1. Obtener id_user de la solicitud para el mensaje
+                    const sol = dataStore.SolicitudesQuincho.find(s => s.id.toString() === cfg.solicitud_id.toString());
+                    const userId = sol ? sol.id_user : null;
+
+                    // 2. Eliminar de SOLICITUD_QUINCHO
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'DELETE', sheet: 'SOLICITUD_QUINCHO', id: cfg.solicitud_id })
+                    });
+
+                    // 3. Marcar fecha como DISPONIBLE en FECHAS_QUINCHO
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'UPDATE',
+                            sheet: 'FECHAS_QUINCHO',
+                            id: cfg.backend_id,
+                            data: { estado: 'DISPONIBLE' }
+                        })
+                    });
+
+                    // 4. Enviar mensaje de rechazo
+                    if (userId) {
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                action: 'CREATE',
+                                sheet: 'MENSAJES',
+                                data: {
+                                    id_user: userId,
+                                    titulo: "Solicitud Rechazada",
+                                    mensaje: `La solicitud de fecha ${qToSheet(iso)} para el quincho fue rechazada.`,
+                                    fecha: new Date().toLocaleString()
+                                }
+                            })
+                        });
+                    }
+
+                    showFeedback("Solicitud rechazada y fecha liberada", true);
+                    qBookingModal.hide();
+                    
+                    // Pequeña espera para que Google refresque los datos
+                    setTimeout(async () => {
+                        await loadData();
+                        qInit();
+                        renderQCalendar();
+                    }, 2000);
+
+                } catch (e) {
+                    console.error(e);
+                    showFeedback("Error al rechazar", false);
+                } finally {
+                    toggleLoader(false);
+                }
+            }
+        }
+
+        async function qConfirmBooking(iso, cfg) {
+            const nombre = document.getElementById('qBookNombre').value.trim();
+            const apellido = document.getElementById('qBookApellido').value.trim();
+            const telefono = document.getElementById('qBookTel').value.trim();
+
+            if (!cfg.solicitud_id || !cfg.backend_id) {
+                showFeedback("Faltan identificadores de registro", false);
+                return;
+            }
+
+            toggleLoader(true);
+            try {
+                // Nueva acción Atómica: Todo ocurre en un solo viaje al servidor
+                const res = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'APPROVE_QUINCHO',
+                        bookingId: cfg.solicitud_id,
+                        dateId: cfg.backend_id,
+                        userId: cfg.id_user,
+                        message: `Su solicitud de fecha ${qToSheet(iso)} para el quincho fue aprobada. Deberá acercarse al gremio para terminar la gestión.`,
+                        data: {
+                            pendiente: 'NO',
+                            nombre: nombre,
+                            apellido: apellido,
+                            telefono: telefono
+                        }
+                    })
+                });
+
+                const result = await res.json();
+
+                if (result.status === 'SUCCESS') {
+                    showFeedback("Reserva aprobada y notificada con éxito", true);
+                    qBookingModal.hide();
+                    
+                    // Pequeña espera para que Google refresque los datos
+                    setTimeout(async () => {
+                        await loadData();
+                        qInit();
+                        renderQCalendar();
+                    }, 2000);
+                } else {
+                    throw new Error(result.message || "Error en el servidor");
+                }
+
+            } catch (e) {
+                console.error("Error confirmando:", e);
+                showFeedback("Error al procesar la aprobación atómica", false);
+            } finally {
+                toggleLoader(false);
+            }
+        }
+
+        async function qCancelarTurnoDirecto() {
+            const iso = document.getElementById('qBookingIso').value;
+            const cfg = qTurnosConfig[iso];
+            if (!cfg) return;
+
+            document.getElementById('confirmMessage').innerText = "¿Seguro que desea liberar esta fecha y cancelar la solicitud actual?";
+            const confirmBtn = document.getElementById('confirmBtnAction');
+            confirmBtn.innerText = "Liberar Fecha";
+            confirmBtn.onclick = async () => {
+                confirmModal.hide();
+                toggleLoader(true);
+                try {
+                    // 1. Borrar de Solicitudes si existe
+                    if (cfg.solicitud_id) {
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'DELETE', sheet: 'SOLICITUD_QUINCHO', id: cfg.solicitud_id })
+                        });
+                    }
+                    if (cfg.backend_id) {
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'UPDATE', sheet: 'FECHAS_QUINCHO', id: cfg.backend_id, data: { estado: 'DISPONIBLE' } })
+                        });
+                    }
+
+                    showFeedback("Solicitud cancelada y fecha liberada", true);
+                    qBookingModal.hide();
+                    await loadData();
+                    qInit();
+                } catch (e) {
+                    showFeedback("Error al cancelar", false);
+                }
+                toggleLoader(false);
+            };
+            confirmModal.show();
+        }
+
+        async function qQuickStatus(enable) {
+            const iso = document.getElementById('qBookingIso').value;
+            await qQuickStatusDirect(iso, enable);
+            qBookingModal.hide();
+        }
+
+        async function qQuickStatusDirect(iso, enable) {
+            toggleLoader(true);
+            try {
+                if (enable) {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'CREATE', sheet: 'FECHAS_QUINCHO', data: { fecha: qToSheet(iso), estado: 'DISPONIBLE' } })
+                    });
+                    showFeedback("Fecha Habilitada", true);
+                } else {
+                    const cfg = qTurnosConfig[iso];
+                    if (cfg && cfg.backend_id) {
+                        await fetch(WEB_APP_URL, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'DELETE', sheet: 'FECHAS_QUINCHO', id: cfg.backend_id })
+                        });
+                        showFeedback("Fecha Bloqueada", true);
+                    }
+                }
+                await loadData();
+                qInit();
+            } catch (e) {
+                showFeedback("Error de conexión", false);
+            }
+            toggleLoader(false);
+        }
+
+        async function qSubmitBooking() {
+            const iso = document.getElementById('qBookingIso').value;
+            const nombre = document.getElementById('qBookNombre').value.trim();
+            const apellido = document.getElementById('qBookApellido').value.trim();
+            const telefono = document.getElementById('qBookTel').value.trim();
+            const cfg = qTurnosConfig[iso];
+
+            if (!nombre || !apellido || !telefono) {
+                showFeedback("Complete todos los campos", false);
+                return;
+            }
+
+            toggleLoader(true);
+            try {
+                const payloadSolicitud = {
+                    id_user: 0,
+                    nombre: nombre,
+                    Nombre: nombre,
+                    apellido: apellido,
+                    Apellido: apellido,
+                    telefono: telefono,
+                    Telefono: telefono,
+                    fecha_solicitada: qToSheet(iso),
+                    fecha_actual: qToSheet(new Date()),
+                    pendiente: 'NO'
+                };
+
+                // 1. Registrar/Actualizar Solicitud
+                if (cfg && cfg.solicitud_id) {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'UPDATE', sheet: 'SOLICITUD_QUINCHO', id: cfg.solicitud_id, data: payloadSolicitud })
+                    });
+                } else {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'CREATE', sheet: 'SOLICITUD_QUINCHO', data: payloadSolicitud })
+                    });
+                }
+
+                // 2. Asegurar que en Fechas esté como OCUPADO
+                if (cfg && cfg.backend_id) {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'UPDATE', sheet: 'FECHAS_QUINCHO', id: cfg.backend_id, data: { estado: 'OCUPADO' } })
+                    });
+                } else {
+                    // Por si se reserva una fecha que no estaba "habilitada" previamente (aunque el UI lo impida)
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'CREATE', sheet: 'FECHAS_QUINCHO', data: { fecha: qToSheet(iso), estado: 'OCUPADO' } })
+                    });
+                }
+
+                showFeedback("Solicitud registrada correctamente", true);
+                qBookingModal.hide();
+                await loadData();
+                qInit();
+            } catch (e) {
+                showFeedback("Error al registrar", false);
+            }
+            toggleLoader(false);
+        }
+
+        function qVerInscriptos() {
+            const iso = document.getElementById('qBookingIso').value;
+            const cfg = qTurnosConfig[iso];
+
+            document.getElementById('qInscDate').innerText = iso.split('-').reverse().join('/');
+            const list = document.getElementById('qInscList');
+            list.innerHTML = "";
+
+            if (!cfg || cfg.occupied === 0) {
+                list.innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-users-slash fs-1 d-block mb-3 opacity-20"></i>No hay registros para esta fecha</div>';
+            } else {
+                list.innerHTML = `
+                    <div class="p-3 bg-white rounded-4 shadow-sm border animate__animated animate__fadeInUp">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="stat-icon bg-accent-soft"><i class="fas fa-user"></i></div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-slate-700">${cfg.nombre}</div>
+                                <div class="small text-muted">Tel: ${cfg.tel}</div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-danger border-0" onclick="qCancelarTurno('${iso}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }
+            qBookingModal.hide();
+            qInscriptosModal.show();
+        }
+
+        function qCancelarTurno(iso) {
+            document.getElementById('confirmMessage').innerText = "¿Seguro que desea cancelar esta solicitud?";
+            const confirmBtn = document.getElementById('confirmBtnAction');
+            confirmBtn.innerText = "Cancelar Solicitud";
+            confirmBtn.onclick = () => {
+                qTurnosConfig[iso].occupied = 0;
+                delete qTurnosConfig[iso].nombre;
+                delete qTurnosConfig[iso].tel;
+
+                localStorage.setItem('stm_quincho_config', JSON.stringify(qTurnosConfig));
+                confirmModal.hide();
+                qInscriptosModal.hide();
+                renderQCalendar();
+                updateStats();
+                showFeedback("Solicitud cancelada", true);
+            };
+            confirmModal.show();
+        }
 
         function showAfiliacionInfo(id) {
             const af = dataStore.Afiliaciones.find(a => a.id.toString() === id.toString());
             if (!af) return;
-            
+
             const body = document.getElementById('afiliacionInfoBody');
             body.innerHTML = `
                 <div class="mb-3">
@@ -1732,6 +2591,13 @@
             `;
             const infoModal = new bootstrap.Modal(document.getElementById('modalAfiliacionInfo'));
             infoModal.show();
+        }
+
+        function formatDisplayDate(ds) {
+            if (!ds) return "---";
+            const d = qParse(ds);
+            if (isNaN(d.getTime())) return ds;
+            return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
         }
     </script>
 </body>
