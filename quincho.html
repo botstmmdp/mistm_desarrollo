@@ -178,14 +178,29 @@
             line-height: 1.1;
         }
 
-        .btn-blink {
-            animation: btn-pulse 2.2s infinite ease-in-out;
+        .btn-sede {
+            background: #d3e27e !important;
+            color: #000000 !important;
+            animation: btn-pulse-sede 2s infinite ease-in-out;
         }
 
-        @keyframes btn-pulse {
+        .btn-complejo {
+            background: var(--stm-accent) !important;
+            color: #000000 !important;
+            animation: btn-pulse-complejo 2s infinite ease-in-out;
+            animation-delay: 1s;
+        }
+
+        @keyframes btn-pulse-sede {
             0% { transform: scale(1); box-shadow: 0 4px 15px rgba(163, 178, 62, 0.1); }
-            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(163, 178, 62, 0.3); opacity: 0.9; }
+            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(163, 178, 62, 0.35); opacity: 0.9; }
             100% { transform: scale(1); box-shadow: 0 4px 15px rgba(163, 178, 62, 0.1); }
+        }
+
+        @keyframes btn-pulse-complejo {
+            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.35); opacity: 0.9; }
+            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1); }
         }
 
         .btn-disabled {
@@ -371,14 +386,13 @@
             </p>
 
             <div class="btn-group">
-                <a href="turno_quincho_sede.html?sede=Sede" class="form-btn btn-blink">
+                <a href="turno_quincho_sede.html?sede=Sede" class="form-btn btn-sede">
                     <i class="fa-solid fa-building"></i>
                     <span>RESERVA EN<br>SEDE</span>
                 </a>
-                <a href="turno_quincho_sede.html?sede=Complejo" class="form-btn" style="background: #e2e8f0; color: #4b5563; border-color: #cbd5e1; box-shadow: none;">
+                <a href="turno_quincho_sede.html?sede=Complejo" class="form-btn btn-complejo">
                     <i class="fa-solid fa-tree-city"></i>
                     <span>RESERVA EN<br>COMPLEJO</span>
-                    <span style="font-size: 0.6rem; opacity: 0.8;">PRÓXIMAMENTE</span>
                 </a>
             </div>
             
