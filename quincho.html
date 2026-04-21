@@ -141,6 +141,17 @@
             display: block; width: 100%; background: var(--stm-primary); color: white;
             text-align: center; padding: 18px; border-radius: 18px; text-decoration: none;
             font-weight: 800; font-size: 1rem; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3); margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-blink {
+            animation: btn-pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes btn-pulse {
+            0% { transform: scale(1); box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3); }
+            50% { transform: scale(1.02); box-shadow: 0 15px 35px rgba(79, 70, 229, 0.5); opacity: 0.9; }
+            100% { transform: scale(1); box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3); }
         }
 
         /* --- BOT & NAV (STRICT) --- */
@@ -317,8 +328,8 @@
                 <strong>Importante:</strong> Pensado para reuniones familiares. No se permite música fuerte, ni fiestas infantiles.
             </p>
 
-            <a href="turno_quincho.html" class="form-btn">
-                <i class="fa-solid fa-calendar-check" style="margin-right: 10px;"></i>RESERVAR QUINCHO
+            <a href="turno_quincho.html" class="form-btn btn-blink">
+                <i class="fa-solid fa-utensils" style="margin-right: 10px;"></i>RESERVAR QUINCHO
             </a>
             
         </div>
