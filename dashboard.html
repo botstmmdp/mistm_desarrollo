@@ -985,6 +985,10 @@
                 <div class="module-header">
                     <h4 class="fw-black m-0">Gestión de Solicitudes: Quincho</h4>
                     <div class="d-flex gap-2">
+                        <select id="quinchoFilter" class="form-select bg-slate-100 border-0 fw-bold text-slate-600" onchange="qInit()" style="min-width: 130px;">
+                            <option value="Sede">Sede</option>
+                            <option value="Complejo">Complejo</option>
+                        </select>
                         <button class="btn-premium bg-slate-100 text-slate-600" onclick="goToToday()">
                             Hoy
                         </button>
@@ -1975,20 +1979,29 @@
 
             // Construir qTurnosConfig desde el dataStore (Backend)
             qTurnosConfig = {};
+            
+            const filterSede = document.getElementById('quinchoFilter') ? document.getElementById('quinchoFilter').value : 'Sede';
 
             // 1. Procesar Fechas Habilitadas (Si no está aquí, está bloqueada)
             dataStore.FechasQuincho.forEach(row => {
+                let rowLugar = row.Lugar || row.lugar || "Sede";
+                if(rowLugar.toLowerCase() !== filterSede.toLowerCase()) return;
+
                 const iso = qToISO(row.fecha);
                 if (!iso) return;
                 qTurnosConfig[iso] = {
                     enabled: true,
                     occupied: ((row.estado || "").toString().toUpperCase() === 'OCUPADO' ? 1 : 0),
-                    backend_id: row.id
+                    backend_id: row.id,
+                    lugar: rowLugar
                 };
             });
 
             // 2. Procesar Datos de Solicitudes (Nombre/Tel)
             dataStore.SolicitudesQuincho.forEach(sol => {
+                let solLugar = sol.Lugar || sol.lugar || "Sede";
+                if(solLugar.toLowerCase() !== filterSede.toLowerCase()) return;
+
                 const dateVal = sol.fecha_solicitada || sol.fecha;
                 if (!dateVal) return;
                 const iso = qToISO(dateVal);
@@ -2135,7 +2148,7 @@
 
         function qOpenBooking(iso, cfg) {
             document.getElementById('qBookingIso').value = iso;
-            document.getElementById('qBookingDateText').innerText = "FECHA SELECCIONADA: " + qToSheet(iso);
+            document.getElementById('qBookingDateText').innerText = "FECHA SELECCIONADA: " + qToSheet(iso) + " | LUGAR: " + (cfg.lugar || "Sede").toUpperCase();
 
             let nombre = cfg.nombre || "";
             let apellido = cfg.apellido || "";
@@ -2390,12 +2403,13 @@
         }
 
         async function qQuickStatusDirect(iso, enable) {
+            const filterSede = document.getElementById('quinchoFilter') ? document.getElementById('quinchoFilter').value : 'Sede';
             toggleLoader(true);
             try {
                 if (enable) {
                     await fetch(WEB_APP_URL, {
                         method: 'POST',
-                        body: JSON.stringify({ action: 'CREATE', sheet: 'FECHAS_QUINCHO', data: { fecha: qToSheet(iso), estado: 'DISPONIBLE' } })
+                        body: JSON.stringify({ action: 'CREATE', sheet: 'FECHAS_QUINCHO', data: { fecha: qToSheet(iso), estado: 'DISPONIBLE', lugar: filterSede } })
                     });
                     showFeedback("Fecha Habilitada", true);
                 } else {
@@ -2408,8 +2422,10 @@
                         showFeedback("Fecha Bloqueada", true);
                     }
                 }
-                await loadData();
-                qInit();
+                setTimeout(async () => {
+                    await loadData();
+                    qInit();
+                }, 1000);
             } catch (e) {
                 showFeedback("Error de conexión", false);
             }

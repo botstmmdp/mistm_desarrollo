@@ -493,13 +493,12 @@
                 <p id="usrDisplayName">Cargando...</p>
             </div>
         </div>
+        <div style="margin-top: 15px;">
+            <a href="quincho.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; background: rgba(79, 70, 229, 0.08); padding: 12px 20px; border-radius: 15px; color: var(--stm-primary); font-weight: 800; font-size: 0.9rem; width: fit-content;">
+                <i class="fa-solid fa-arrow-left"></i> VOLVER ATRÁS
+            </a>
+        </div>
     </header>
-
-    <div class="container" style="padding-bottom: 0;">
-        <a href="quincho.html" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; text-decoration: none; background: rgba(79, 70, 229, 0.08); padding: 12px 20px; border-radius: 15px; color: var(--stm-primary); font-weight: 800; font-size: 0.9rem; width: fit-content;">
-            <i class="fa-solid fa-arrow-left"></i> VOLVER ATRÁS
-        </a>
-    </div>
 
     <div class="container" id="daysList" style="padding-top: 10px;">
         <!-- Los días se cargan aquí -->
@@ -632,6 +631,9 @@
             const loader = document.getElementById('loader-wrapper');
             loader.style.display = 'flex';
             loader.style.opacity = '1';
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const userSede = (urlParams.get('sede') || 'Sede').toLowerCase();
 
             try {
                 if (URL_SCRIPT) {
@@ -641,6 +643,9 @@
                     if (data.FECHAS_QUINCHO) {
                         data.FECHAS_QUINCHO.forEach(row => {
                             if (!row.fecha) return;
+                            let rowLugar = (row.Lugar || row.lugar || 'Sede').toString().toLowerCase();
+                            if (rowLugar !== userSede) return;
+                            
                             const iso = qFormatDate(row.fecha);
                             config[iso] = {
                                 enabled: true,
@@ -650,25 +655,28 @@
                         });
                     }
 
-                    // Verificar si el usuario ya tiene una reserva activa
+                    // Verificar si el usuario ya tiene una reserva activa para ESE quincho
                     if (data.SOLICITUD_QUINCHO) {
                         const myUserId = localStorage.getItem('usrID');
-                        const myRequest = data.SOLICITUD_QUINCHO.find(s =>
-                            s.id_user && s.id_user.toString() === myUserId.toString() &&
-                            (s.pendiente.toString().toUpperCase() === 'SI' || (s.pendiente.toString().toUpperCase() === 'NO' && qFormatDate(s.fecha_solicitada) >= qFormatDate(new Date())))
-                        );
+                        const myRequest = data.SOLICITUD_QUINCHO.find(s => {
+                            let solLugar = (s.Lugar || s.lugar || 'Sede').toString().toLowerCase();
+                            return s.id_user && s.id_user.toString() === myUserId.toString() &&
+                                (s.pendiente.toString().toUpperCase() === 'SI' || (s.pendiente.toString().toUpperCase() === 'NO' && qFormatDate(s.fecha_solicitada) >= qFormatDate(new Date())));
+                        });
 
                         if (myRequest) {
                             const isPending = myRequest.pendiente.toString().toUpperCase() === 'SI';
                             const isoBooked = qFormatDate(myRequest.fecha_solicitada);
                             const dateId = config[isoBooked] ? config[isoBooked].backend_id : null;
+                            const solLugar = (myRequest.Lugar || myRequest.lugar || 'Sede').toString().toUpperCase();
 
                             localStorage.setItem('my_active_booking', JSON.stringify({
                                 id: myRequest.id, // ID real de la fila en BD
                                 iso: isoBooked,
                                 date: qFormatSheetDate(myRequest.fecha_solicitada),
                                 status: isPending ? 'PENDIENTE' : 'CONFIRMADA',
-                                date_id: dateId
+                                date_id: dateId,
+                                lugar: solLugar
                             }));
 
                             // Notificación automática al entrar usando el modal de acción
@@ -756,7 +764,7 @@
                         </div>
                     </div>
                     <div style="text-align: center;">
-                        <p style="font-size: 1.1rem; color: var(--text-dark);">Ya tienes una solicitud <b class="${b.status === 'CONFIRMADA' ? 'text-success' : 'text-warning'}">${b.status}</b> para el día <b>${b.date}</b>.</p>
+                        <p style="font-size: 1.1rem; color: var(--text-dark);">Ya tienes una solicitud <b class="${b.status === 'CONFIRMADA' ? 'text-success' : 'text-warning'}">${b.status}</b> para el día <b>${b.date}</b> para el lugar <b>${b.lugar || 'SEDE'}</b>.</p>
                         <p class="text-muted small">Para elegir una nueva fecha o realizar otro trámite, primero debes gestionar tu solicitud actual.</p>
                     </div>
                 `;
@@ -792,6 +800,9 @@
             const nombre = parts[0] || "";
             const apellido = parts.slice(1).join(' ') || "";
 
+            const urlParams = new URLSearchParams(window.location.search);
+            const userSede = urlParams.get('sede') || 'Sede';
+
             Swal.fire({
                 title: 'Enviando solicitud...',
                 allowOutsideClick: false,
@@ -807,6 +818,7 @@
                     apellido: apellido,
                     fecha_solicitada: date,
                     fecha_actual: qFormatSheetDate(new Date()),
+                    lugar: userSede,
                     pendiente: 'SI'
                 };
 
@@ -924,6 +936,10 @@
         function logout() { sessionStorage.clear(); localStorage.clear(); window.location.href = 'index.html'; }
 
         window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userSede = urlParams.get('sede') || 'Sede';
+            document.title = "Disponibilidad Quincho - " + userSede.toUpperCase();
+
             loadAvailableDays();
             const cfgDark = localStorage.getItem('cfg_dark') === 'true';
             const cfgBot = localStorage.getItem('cfg_bot') !== 'false';
