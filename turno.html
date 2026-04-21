@@ -172,28 +172,64 @@
         }
 
         .btn-confirm {
-            background: var(--stm-primary);
+            background: linear-gradient(135deg, var(--stm-primary) 0%, #6366f1 100%);
             color: white;
-            border-radius: 18px;
-            padding: 15px;
+            border-radius: 20px;
+            padding: 16px;
             font-weight: 800;
             border: none;
             width: 100%;
-            transition: 0.3s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
         }
 
         .btn-confirm:active {
-            transform: scale(0.95);
+            transform: scale(0.94) translateY(2px);
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
         }
 
         .btn-danger-outline {
             border: 2px solid #ef4444;
             color: #ef4444;
-            background: transparent;
-            border-radius: 18px;
-            padding: 15px;
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
             font-weight: 800;
             width: 100%;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 1.05rem;
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.1);
+        }
+
+        body.dark-mode .btn-danger-outline {
+            background: transparent;
+        }
+
+        .btn-danger-outline:active {
+            transform: scale(0.94) translateY(2px);
+            background: #fef2f2;
+        }
+
+        body.dark-mode .btn-danger-outline:active {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .footer-action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            padding-top: 10px;
         }
 
         /* --- BOT & NAV --- */
@@ -352,7 +388,7 @@
         }
 
         .loader-logo {
-            width: 80px;
+            width: 100px;
             animation: spin 2s linear infinite;
         }
 
@@ -671,13 +707,25 @@
                 `;
 
                 footer.innerHTML = `
-                    <button class="btn-confirm mb-2" onclick="toggleAction(false)">MANTENER RESERVA</button>
-                    <button class="btn-danger-outline" onclick="cancelMyBooking('${b.id}')">ANULAR SOLICITUD ACTUAL</button>
+                    <div class="footer-action-buttons">
+                        <button class="btn-confirm" onclick="toggleAction(false)">
+                            <i class="fa-solid fa-shield-halved fs-5"></i> MANTENER RESERVA
+                        </button>
+                        <button class="btn-danger-outline" onclick="cancelMyBooking('${b.id}')">
+                            <i class="fa-solid fa-triangle-exclamation fs-5"></i> ANULAR SOLICITUD
+                        </button>
+                    </div>
                 `;
             } else {
                 title.innerText = "Solicitar Reserva";
                 body.innerHTML = `<p class="text-center" style="font-size: 1.1rem;">¿Deseas solicitar tu reserva para el quincho el día <b>${name} ${date}</b>?</p>`;
-                footer.innerHTML = `<button class="btn-confirm" onclick="confirmMyBooking('${iso}', '${date}')">SOLICITAR RESERVA</button>`;
+                footer.innerHTML = `
+                    <div class="footer-action-buttons">
+                        <button class="btn-confirm" onclick="confirmMyBooking('${iso}', '${date}')">
+                            <i class="fa-solid fa-calendar-check fs-5"></i> SOLICITAR RESERVA
+                        </button>
+                    </div>
+                `;
             }
             toggleAction(true);
         }
