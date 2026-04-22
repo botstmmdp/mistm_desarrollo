@@ -38,7 +38,6 @@
         .nav-footer,
         .nav-bar,
 
-
         .nav-home-pulse i {
             animation: home-blink 2s infinite ease-in-out;
         }
@@ -276,8 +275,6 @@
             opacity: 1;
         }
 
-
-
         .res-item-bot {
             background: #f8fafc;
             border: 1px solid #f1f5f9;
@@ -294,16 +291,7 @@
             color: #94a3b8 !important;
         }
 
-
-
-
-
         /* --- NAVIGATION --- */
-
-
-
-
-
 
         /* --- NOTIFICATION & UTILS --- */
         .stm-notify {
@@ -658,9 +646,8 @@
     </div>
 
     <nav class="bottom-nav">
-        <a href="opciones.html" class="nav-btn nav-home-pulse"><i class="fa-solid fa-house"></i></a>
+        <a href="opciones.html" class="nav-btn nav-home-pulse" onclick="window.location.href='opciones.html'; return false;"><i class="fa-solid fa-house"></i></a>
         <a href="contactos.html" class="nav-btn"><i class="fa-solid fa-phone"></i></a>
-        <a href="#" class="nav-btn" onclick="toggleUser(true)"><i class="fa-solid fa-user"></i></a>
         <a href="#" class="nav-btn" onclick="toggleSettings(true)"><i class="fa-solid fa-gear"></i></a>
     </nav>
 
@@ -684,29 +671,6 @@
         </div>
     </div>
 
-    <div class="bot-modal" id="modalUser" onclick="if(event.target == this) toggleUser(false)">
-        <div class="bot-content">
-            <div style="width: 40px; height: 5px; background: #e2e8f0; border-radius: 10px; margin: -10px auto 20px;">
-            </div>
-            <h2 style="font-weight: 800; font-size: 1.3rem; margin-bottom:10px; color: var(--stm-primary);">Mi Cuenta
-            </h2>
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-                <input type="password" id="newPass" class="bot-input" placeholder="Nueva Contraseña"
-                    style="padding-left:20px">
-                <input type="password" id="confirmPass" class="bot-input" placeholder="Confirmar Nueva Contraseña"
-                    style="padding-left:20px">
-                <button onclick="changePassword()"
-                    style="padding: 18px; border-radius: 18px; border: none; background: var(--stm-primary); color: white; font-weight: 800; cursor: pointer;">Actualizar
-                    Contraseña</button>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-top:20px;">
-                <button onclick="logout()"
-                    style="padding: 15px; border-radius: 18px; border: 2px solid #ef4444; background: transparent; color: #ef4444; font-weight: 800; cursor: pointer;">Cerrar
-                    Sesión</button>
-                <button onclick="toggleUser(false)"
-                    style="padding: 15px; border: none; background: transparent; color: #64748b; font-weight: 600; cursor: pointer;">Cancelar</button>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -730,7 +694,6 @@
             { t: "Inicio", d: "Panel principal de opciones", f: "opciones.html", tags: "inicio dashboard panel principal volver", ico: "fa-house" }
         ];
 
-        const USER_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbznHgKBFeFZMc8IVRHLrTr9RcRROqB4DasbNFPyD3XDxFt9JYT9uzN0tqKNfRTTpOlqBg/exec';
 
 
         // --- NOVEDADES PARA EL BOT ---
@@ -760,56 +723,11 @@
             fetchNews();
         }
         function toggleSettings(show) { document.getElementById('modalConfig').classList.toggle('active', show); }
-        function toggleUser(show) { document.getElementById('modalUser').classList.toggle('active', show); if (show) document.getElementById('newPass').focus(); }
-
-        function showNotify(msg, type = 'info') {
-            const div = document.createElement('div'); div.className = 'stm-notify';
-            const ico = type === 'error' ? 'fa-triangle-exclamation' : 'fa-check';
-            const bg = type === 'error' ? '#ef4444' : '#10b981';
-            div.innerHTML = `<i class="fa-solid ${ico}" style="background:${bg}"></i> <span>${msg}</span>`;
-            document.body.appendChild(div); setTimeout(() => div.classList.add('show'), 10);
-            setTimeout(() => { div.classList.remove('show'); setTimeout(() => div.remove(), 500); }, 3000);
-        }
 
         function applyConfig(type, value) {
             localStorage.setItem('cfg_' + type, value);
             if (type === 'dark') document.body.classList.toggle('dark-mode', value);
             if (type === 'bot') document.getElementById('fabBotIcon').classList.toggle('hidden', !value);
-        }
-
-        async function changePassword() {
-            const p1 = document.getElementById('newPass').value;
-            const p2 = document.getElementById('confirmPass').value;
-            const btn = document.querySelector('#modalUser button[onclick="changePassword()"]');
-            const usrID = localStorage.getItem('usrID');
-
-            if (!p1 || !p2) { showNotify("Completa todos los campos.", "error"); return; }
-            if (p1 !== p2) { showNotify("Las contraseñas no coinciden.", "error"); return; }
-            if (!usrID) { showNotify("Sesión inválida, reingresa", "error"); return; }
-
-            const originalText = btn.innerText;
-            btn.innerText = "Procesando...";
-            btn.style.pointerEvents = "none";
-
-            try {
-                await fetch(USER_SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'UPDATE_PASSWORD', id: usrID, newPass: p1 })
-                });
-                localStorage.setItem('usrPass', p1);
-                showNotify("¡Contraseña actualizada en la nube!", "success");
-                btn.innerText = "¡Listo! ✓";
-                btn.style.background = "#10b981";
-                setTimeout(() => {
-                    toggleUser(false);
-                    btn.innerText = originalText; btn.style.background = "var(--stm-primary)";
-                    btn.style.pointerEvents = "auto";
-                    document.getElementById('newPass').value = ""; document.getElementById('confirmPass').value = "";
-                }, 1500);
-            } catch (err) {
-                showNotify("Error de conexión", "error");
-                btn.innerText = originalText; btn.style.pointerEvents = "auto";
-            }
         }
 
         let searchTimer = null;
@@ -842,10 +760,7 @@
             }, 500);
         });
 
-        function logout() {
-            sessionStorage.clear(); localStorage.clear();
-            window.location.href = 'index.html';
-        }
+
 
         window.addEventListener('load', () => {
             const cfg = { dark: localStorage.getItem('cfg_dark') === 'true', bot: localStorage.getItem('cfg_bot') !== 'false' };

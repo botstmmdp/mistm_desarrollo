@@ -7,6 +7,10 @@
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MiStm App</title>
     <link rel="icon" type="image/png" href="logo nuevo.png">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
 
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
@@ -1195,9 +1199,9 @@
     </div>
 
     <nav class="bottom-nav">
-        <a href="opciones.html" class="nav-btn active"><i class="fa-solid fa-house"></i></a>
+        <a href="opciones.html" class="nav-btn active" onclick="location.reload()"><i class="fa-solid fa-house"></i></a>
         <a href="contactos.html" class="nav-btn"><i class="fa-solid fa-phone"></i></a>
-        <a href="#" class="nav-btn" onclick="toggleUser(true)"><i class="fa-solid fa-user"></i></a>
+        <a href="#" class="nav-btn" onclick="toggleUser(true)"><i class="fa-solid fa-user" style="color: #ffca28;"></i></a>
         <a href="#" class="nav-btn" onclick="toggleSettings(true)"><i class="fa-solid fa-gear"></i></a>
     </nav>
 
@@ -1278,13 +1282,13 @@
                 <div style="position: relative;">
                     <i class="fa-solid fa-lock"
                         style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                    <input type="password" id="newPass" class="search-input" placeholder="Nueva Contraseña"
+                    <input type="password" id="newPass" class="bot-input" placeholder="Nueva Contraseña"
                         style="padding-left: 50px;">
                 </div>
                 <div style="position: relative;">
                     <i class="fa-solid fa-shield-check"
                         style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                    <input type="password" id="confirmPass" class="search-input" placeholder="Confirmar contraseña"
+                    <input type="password" id="confirmPass" class="bot-input" placeholder="Confirmar contraseña"
                         style="padding-left: 50px;">
                 </div>
 
