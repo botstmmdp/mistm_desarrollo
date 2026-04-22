@@ -955,10 +955,21 @@
             border-color: #334155 !important;
             color: white !important;
         }
+
         @keyframes blink-red {
-            0%, 100% { opacity: 1; color: #fca5a5; }
-            50% { opacity: 0.3; color: #ef4444; }
+
+            0%,
+            100% {
+                opacity: 1;
+                color: #fca5a5;
+            }
+
+            50% {
+                opacity: 0.3;
+                color: #ef4444;
+            }
         }
+
         .blink-alert {
             animation: blink-red 1.5s infinite;
         }
@@ -1190,9 +1201,9 @@
         <a href="#" class="nav-btn" onclick="toggleSettings(true)"><i class="fa-solid fa-gear"></i></a>
     </nav>
 
-    <!-- MODAL CONFIGURACIÓN -->
-    <div class="search-modal" id="modalConfig" onclick="if(event.target == this) toggleSettings(false)">
-        <div class="search-content">
+    <!-- MODAL CONFIGURACIÓN - COMPORTAMIENTO BOTTOM SHEET RESTAURADO -->
+    <div class="bot-modal" id="modalConfig" onclick="if(event.target == this) toggleSettings(false)">
+        <div class="bot-content">
             <div style="width: 40px; height: 5px; background: #e2e8f0; border-radius: 10px; margin: -10px auto 20px;">
             </div>
             <h2 style="font-weight: 800; font-size: 1.3rem; margin: 0 0 20px 5px; color: var(--stm-primary);">
@@ -1253,9 +1264,9 @@
         </div>
     </div>
 
-    <!-- MODAL PERFIL/CONTRASEÑA - DISEÑO CENTRADO PREMIUM -->
-    <div class="search-modal" id="modalUser" onclick="if(event.target == this) toggleUser(false)">
-        <div class="search-content">
+    <!-- MODAL PERFIL/CONTRASEÑA - COMPORTAMIENTO BOTTOM SHEET RESTAURADO -->
+    <div class="bot-modal" id="modalUser" onclick="if(event.target == this) toggleUser(false)">
+        <div class="bot-content">
             <div
                 style="width: 70px; height: 70px; background: rgba(79, 70, 229, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
                 <i class="fa-solid fa-user-shield" style="font-size: 1.8rem; color: var(--stm-primary);"></i>
@@ -1273,7 +1284,7 @@
                 <div style="position: relative;">
                     <i class="fa-solid fa-shield-check"
                         style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                    <input type="password" id="confirmPass" class="search-input" placeholder="Confirmar contraseña"
+                    <input type="password" id="confirmPass" class="search-input" placeholder="Confirm Nueva Contraseña"
                         style="padding-left: 50px;">
                 </div>
 
@@ -1294,16 +1305,24 @@
     </div>
 
     <!-- MODAL CREDENCIAL DIGITAL - DISEÑO PREMIUM MÓVIL -->
-    <div class="search-modal" id="modalCredencial" style="display: none;" onclick="if(event.target == this) toggleCredencial(false)">
-        <div class="search-content credencial-container" style="padding: 0; overflow: hidden; background: #f1f5f9; max-width: 380px; width: 92%; opacity: 0; transform: scale(0.5); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
-            <div id="credencialCard" style="width: 100%; background: white; padding: 20px; position: relative; display: flex; flex-direction: column; color: #1e293b; box-sizing: border-box; border-radius: 28px 28px 0 0;">
+    <div class="search-modal" id="modalCredencial" style="display: none;"
+        onclick="if(event.target == this) toggleCredencial(false)">
+        <div class="search-content credencial-container"
+            style="padding: 0; overflow: hidden; background: #f1f5f9; max-width: 380px; width: 92%; opacity: 0; transform: scale(0.5); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 28px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+            <div id="credencialCard"
+                style="width: 100%; background: white; padding: 20px; position: relative; display: flex; flex-direction: column; color: #1e293b; box-sizing: border-box; border-radius: 28px 28px 0 0;">
                 <!-- Header con logo y título -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
                     <div style="flex-grow: 1;">
-                        <h2 style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #1e293b; line-height: 1.2; text-transform: uppercase; letter-spacing: -0.2px;">Sindicato de Trabajadores Municipales</h2>
-                        <h3 style="margin: 0; font-size: 0.85rem; font-weight: 600; color: #64748b;">Gral. Pueyrredón</h3>
+                        <h2
+                            style="margin: 0; font-size: 0.95rem; font-weight: 800; color: #1e293b; line-height: 1.2; text-transform: uppercase; letter-spacing: -0.2px;">
+                            Sindicato de Trabajadores Municipales</h2>
+                        <h3 style="margin: 0; font-size: 0.85rem; font-weight: 600; color: #64748b;">Gral. Pueyrredón
+                        </h3>
                     </div>
-                    <div style="width: 65px; height: 65px; flex-shrink: 0; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-left: 10px;">
+                    <div
+                        style="width: 65px; height: 65px; flex-shrink: 0; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-left: 10px;">
                         <img src="logo nuevo.png" alt="STM" style="width: 100%; height: 100%; object-fit: contain;">
                     </div>
                 </div>
@@ -1312,22 +1331,32 @@
                 <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 18px; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                         <div style="flex-grow: 1;">
-                            <span style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Nombre del Afiliado</span>
-                            <h2 id="credFullName" style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #1e293b; line-height: 1.1; word-break: break-word;">---</h2>
+                            <span
+                                style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Nombre
+                                del Afiliado</span>
+                            <h2 id="credFullName"
+                                style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #1e293b; line-height: 1.1; word-break: break-word;">
+                                ---</h2>
                         </div>
                         <div style="text-align: right; padding-left: 10px;">
-                            <span style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Legajo</span>
-                            <span id="credLegajo" style="font-size: 1.05rem; font-weight: 800; color: #4f46e5; background: rgba(79, 70, 229, 0.08); padding: 5px 12px; border-radius: 8px; white-space: nowrap;">---</span>
+                            <span
+                                style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Legajo</span>
+                            <span id="credLegajo"
+                                style="font-size: 1.05rem; font-weight: 800; color: #4f46e5; background: rgba(79, 70, 229, 0.08); padding: 5px 12px; border-radius: 8px; white-space: nowrap;">---</span>
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px; border-radius: 20px; border: 1px solid #f1f5f9;">
-                         <div style="text-align: left;">
-                            <span style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Documento Nacional de Identidad</span>
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px; border-radius: 20px; border: 1px solid #f1f5f9;">
+                        <div style="text-align: left;">
+                            <span
+                                style="font-size: 0.7rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">Documento
+                                Nacional de Identidad</span>
                             <span id="credDNI" style="font-size: 1.15rem; font-weight: 800; color: #1e293b;">---</span>
                         </div>
                         <!-- QR Code Container -->
-                        <div style="background: white; padding: 8px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+                        <div
+                            style="background: white; padding: 8px; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
                             <canvas id="qrcanvas" style="width: 85px; height: 85px; display: block;"></canvas>
                         </div>
                     </div>
@@ -1335,19 +1364,25 @@
 
                 <!-- Footer del Carnet -->
                 <div style="text-align: center; background: #37306b; margin: 0 -20px; padding: 15px 20px;">
-                    <h4 style="margin: 0 0 4px; font-size: 1.05rem; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase;">Credencial de Afiliado</h4>
-                    <p style="margin: 0; font-size: 0.65rem; font-weight: 500; color: rgba(255,255,255,0.7);">Moreno 4359 • (223) 4723756 • Mar del Plata</p>
-                    <p class="blink-alert" style="margin: 4px 0 0; font-size: 0.55rem; font-weight: 700; text-transform: uppercase;">Carece de validez si no se exhibe con DNI</p>
+                    <h4
+                        style="margin: 0 0 4px; font-size: 1.05rem; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase;">
+                        Credencial de Afiliado</h4>
+                    <p style="margin: 0; font-size: 0.65rem; font-weight: 500; color: rgba(255,255,255,0.7);">Moreno
+                        4359 • (223) 4723756 • Mar del Plata</p>
+                    <p class="blink-alert"
+                        style="margin: 4px 0 0; font-size: 0.55rem; font-weight: 700; text-transform: uppercase;">Carece
+                        de validez si no se exhibe con DNI</p>
                 </div>
             </div>
             <div style="background: white; padding: 15px 20px 20px;">
-                <button onclick="toggleCredencial(false)" style="width: 100%; padding: 16px; border: none; background: #f1f5f9; color: #475569; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;">
+                <button onclick="toggleCredencial(false)"
+                    style="width: 100%; padding: 16px; border: none; background: #f1f5f9; color: #475569; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;">
                     <i class="fas fa-times-circle"></i> Cerrar Credencial
                 </button>
             </div>
         </div>
     </div>
-        </div>
+    </div>
     </div>
 
     <!-- MODAL PROXIMAMENTE -->
@@ -1598,11 +1633,11 @@
         function toggleCredencial(show) {
             const modal = document.getElementById('modalCredencial');
             if (!modal) return;
-            
+
             if (show) {
                 let nombre = localStorage.getItem('usrName');
                 let apellido = localStorage.getItem('usrLastName');
-                
+
                 // Fallback: si no hay apellido guardado por separado, intentar extraerlo del nombre completo
                 if (!apellido && localStorage.getItem('usrFullName')) {
                     const full = localStorage.getItem('usrFullName').trim();
@@ -1624,13 +1659,13 @@
                 document.getElementById('credDNI').innerText = dni;
 
                 modal.style.display = 'flex';
-                
+
                 setTimeout(() => {
                     modal.classList.add('active');
                     const inner = modal.querySelector('.search-content');
-                    if (inner) { 
-                        inner.style.transform = 'scale(1)'; 
-                        inner.style.opacity = '1'; 
+                    if (inner) {
+                        inner.style.transform = 'scale(1)';
+                        inner.style.opacity = '1';
                     }
 
                     // Generar QR usando QRious (Librería moderna basada en Canvas)
@@ -1638,7 +1673,7 @@
                         // Formato final solicitado: apellido//nombre//documento//legajo
                         const qrText = `${apellido}//${nombre}//${dni}//${legajo}`;
                         const canvas = document.getElementById('qrcanvas');
-                        
+
                         new QRious({
                             element: canvas,
                             value: qrText,
@@ -1647,7 +1682,7 @@
                             foreground: '#000000',
                             background: '#ffffff'
                         });
-                        
+
                         // Ajustar tamaño del canvas para que encaje
                         canvas.style.width = "100%";
                         canvas.style.height = "100%";
@@ -1661,12 +1696,12 @@
             } else {
                 modal.classList.remove('active');
                 const inner = modal.querySelector('.search-content');
-                if (inner) { 
-                    inner.style.transform = 'scale(0.5)'; 
-                    inner.style.opacity = '0'; 
+                if (inner) {
+                    inner.style.transform = 'scale(0.5)';
+                    inner.style.opacity = '0';
                 }
-                setTimeout(() => { 
-                    modal.style.display = 'none'; 
+                setTimeout(() => {
+                    modal.style.display = 'none';
                 }, 400);
             }
         }
