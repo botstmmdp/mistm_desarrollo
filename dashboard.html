@@ -895,6 +895,7 @@
                                     <th>Nombre</th>
                                     <th>Usuario</th>
                                     <th>Permiso</th>
+                                    <th>Documento</th>
                                     <th>Email</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
@@ -1718,6 +1719,7 @@
                     <td class="fw-bold text-slate-700">${u.apellido}, ${u.nombre}</td>
                     <td><span class="badge-user">${u.usuario || u.user}</span></td>
                     <td><span class="badge-permiso">${u.permiso || 'USER'}</span></td>
+                    <td><small class="text-muted">${u.documento || '-'}</small></td>
                     <td><small class="text-muted">${u.email || '-'}</small></td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center gap-2">
@@ -1760,7 +1762,9 @@
                 (u.nombre || "").toLowerCase().includes(query) ||
                 (u.apellido || "").toLowerCase().includes(query) ||
                 (u.usuario || u.user || "").toLowerCase().includes(query) ||
-                (u.email || "").toLowerCase().includes(query)
+                (u.email || "").toLowerCase().includes(query) ||
+                (u.legajo || "").toString().toLowerCase().includes(query) ||
+                (u.documento || "").toString().toLowerCase().includes(query)
             );
             renderUsuarios(filtered);
         }
@@ -1794,6 +1798,7 @@
                         <div class="col-6 mb-3"><label class="form-label fw-bold small">Nombre</label><input type="text" class="form-control" name="nombre" id="inputNombre" value="${data?.nombre || ''}" oninput="generateUsername()" required></div></div>
                         <div class="row"><div class="col-6 mb-3"><label class="form-label fw-bold small">Usuario</label><input type="text" class="form-control" name="usuario" id="inputUsuario" value="${data?.usuario || data?.user || ''}" required></div>
                         <div class="col-6 mb-3"><label class="form-label fw-bold small">Clave</label><input type="text" class="form-control" name="password" id="inputPassword" value="${data?.password || ''}" placeholder="" required></div></div>
+                        <div class="mb-3"><label class="form-label fw-bold small">Email (Opcional)</label><input type="email" class="form-control" name="email" value="${data?.email || ''}"></div>
                         <div class="mb-3"><label class="form-label fw-bold small">Permiso</label>
                             <select class="form-select" name="permiso">
                                 <option value="USER" ${data?.permiso === 'USER' ? 'selected' : ''}>USER</option>
@@ -1803,6 +1808,10 @@
                                 <option value="DEPORTE" ${data?.permiso === 'DEPORTE' ? 'selected' : ''}>DEPORTE</option>
                                 <option value="CAPACITACION" ${data?.permiso === 'CAPACITACION' ? 'selected' : ''}>CAPACITACION</option>
                             </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3"><label class="form-label fw-bold small">Legajo</label><input type="text" class="form-control" name="legajo" value="${data?.legajo || ''}"></div>
+                            <div class="col-6 mb-3"><label class="form-label fw-bold small">Documento (DNI)</label><input type="text" class="form-control" name="documento" value="${data?.documento || ''}"></div>
                         </div>`;
             } else if (activeTab === 'Mensajes') {
                 const opts = dataStore.Usuarios.map(u => `<option value="${u.id}">${u.apellido}, ${u.nombre}</option>`).join('');

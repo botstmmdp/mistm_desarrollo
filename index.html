@@ -366,7 +366,9 @@
                     nombre: r.c[2]?.v || "",
                     usuario: String(r.c[3]?.v || ""),
                     password: String(r.c[4]?.f || r.c[4]?.v || ""),
-                    permiso: r.c[5]?.v || "USER"
+                    permiso: r.c[5]?.v || "USER",
+                    legajo: r.c[7]?.v || "",
+                    documento: r.c[8]?.v || ""
                 }));
 
                 const found = users.find(u =>
@@ -380,8 +382,11 @@
                     localStorage.setItem('usrID', found.id);
                     localStorage.setItem('usrLogin', found.usuario);
                     localStorage.setItem('usrName', found.nombre);
+                    localStorage.setItem('usrLastName', found.apellido);
                     localStorage.setItem('usrFullName', `${found.nombre} ${found.apellido}`);
                     localStorage.setItem('usrPermiso', found.permiso);
+                    localStorage.setItem('usrLegajo', found.legajo);
+                    localStorage.setItem('usrDocumento', found.documento);
 
                     showNotify(`¡Hola ${found.nombre}! Entrando...`, 'success');
 
