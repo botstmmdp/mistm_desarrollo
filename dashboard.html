@@ -986,8 +986,12 @@
                 <div class="module-header">
                     <h4 class="fw-black m-0">Gestión de Solicitudes: Quincho</h4>
                     <div class="d-flex gap-2 align-items-center flex-shrink-0">
-                        <span id="qVistaActualLabel" class="fw-bold text-nowrap" style="border: 2px solid #ef4444; color: #ef4444; padding: 6px 12px; border-radius: 12px; font-size: 0.85rem;"><i class="fa-solid fa-eye me-2"></i> Vista Actual:</span>
-                        <select id="quinchoFilter" class="form-select bg-slate-100 border-0 fw-bold text-slate-700 shadow-sm" onchange="qInit()" style="min-width: 140px; cursor: pointer;">
+                        <span id="qVistaActualLabel" class="fw-bold text-nowrap"
+                            style="border: 2px solid #ef4444; color: #ef4444; padding: 6px 12px; border-radius: 12px; font-size: 0.85rem;"><i
+                                class="fa-solid fa-eye me-2"></i> Vista Actual:</span>
+                        <select id="quinchoFilter"
+                            class="form-select bg-slate-100 border-0 fw-bold text-slate-700 shadow-sm"
+                            onchange="qInit()" style="min-width: 140px; cursor: pointer;">
                             <option value="Sede">Sede</option>
                             <option value="Complejo">Complejo</option>
                         </select>
@@ -1460,9 +1464,9 @@
             const statQuincho = document.getElementById('stat-card-quincho');
             const navQuincho = document.getElementById('nav-quincho');
             const labelVista = document.getElementById('qVistaActualLabel');
-            
+
             statQuincho.classList.remove('stat-card-disabled');
-            
+
             if (hasNewQuinchoToday) {
                 statQuincho.classList.add('blink-red');
                 if (navQuincho) navQuincho.classList.add('blink-red');
@@ -1777,9 +1781,9 @@
             let html = "";
 
             // Adaptar UI según el módulo
-            if (activeTab === 'Mensajes') {
+            if (activeTab === 'Mensajes' || activeTab === 'Usuarios') {
                 statusSec.style.display = 'none';
-                btnSubmit.innerHTML = `<i class="fas fa-paper-plane me-2"></i> Enviar`;
+                btnSubmit.innerHTML = activeTab === 'Mensajes' ? `<i class="fas fa-paper-plane me-2"></i> Enviar` : `<i class="fas fa-save me-2"></i> Guardar`;
             } else {
                 statusSec.style.display = 'block';
                 btnSubmit.innerHTML = `<i class="fas fa-save me-2"></i> Guardar`;
@@ -1865,8 +1869,12 @@
             }
 
             try {
-                const response = await fetch(WEB_APP_URL, {
+                // Usamos mode: 'no-cors' y Content-Type: 'text/plain' para evitar problemas de CORS con Google Apps Script
+                // que causan que el navegador vea un error aunque el servidor haya procesado el dato correctamente.
+                await fetch(WEB_APP_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify({
                         action: data.id ? 'UPDATE' : 'CREATE',
                         sheet: activeTab.toUpperCase(),
@@ -1874,17 +1882,19 @@
                         data: data
                     })
                 });
-                const result = await response.json();
-                if (result.status === 'SUCCESS') {
-                    const successMsg = activeTab === 'Mensajes' ? 'Mensaje enviado exitosamente' : 'Guardado exitosamente';
-                    showFeedback(successMsg, true);
-                    modal.hide();
-                    loadData();
-                } else {
-                    showFeedback(result.message || 'Error al guardar', false);
-                }
+
+                // Como usamos no-cors, no podemos leer la respuesta (es opaca). 
+                // Dado que el usuario confirma que el dato se guarda bien, asumimos éxito.
+                const successMsg = activeTab === 'Mensajes' ? 'Mensaje enviado exitosamente' : '¡Guardado con éxito! ✓';
+                showFeedback(successMsg, true);
+                modal.hide();
+
+                // Damos un pequeño respiro al servidor antes de recargar
+                setTimeout(loadData, 1500);
+
             } catch (err) {
-                showFeedback("Error de conexión", false);
+                console.error(err);
+                showFeedback("Error de conexión con el servidor", false);
             }
             toggleLoader(false);
         }
@@ -1991,13 +2001,13 @@
 
             // Construir qTurnosConfig desde el dataStore (Backend)
             qTurnosConfig = {};
-            
+
             const filterSede = document.getElementById('quinchoFilter') ? document.getElementById('quinchoFilter').value : 'Sede';
 
             // 1. Procesar Fechas Habilitadas (Si no está aquí, está bloqueada)
             dataStore.FechasQuincho.forEach(row => {
                 let rowLugar = row.Lugar || row.lugar || "Sede";
-                if(rowLugar.toLowerCase() !== filterSede.toLowerCase()) return;
+                if (rowLugar.toLowerCase() !== filterSede.toLowerCase()) return;
 
                 const iso = qToISO(row.fecha);
                 if (!iso) return;
@@ -2012,7 +2022,7 @@
             // 2. Procesar Datos de Solicitudes (Nombre/Tel)
             dataStore.SolicitudesQuincho.forEach(sol => {
                 let solLugar = sol.Lugar || sol.lugar || "Sede";
-                if(solLugar.toLowerCase() !== filterSede.toLowerCase()) return;
+                if (solLugar.toLowerCase() !== filterSede.toLowerCase()) return;
 
                 const dateVal = sol.fecha_solicitada || sol.fecha;
                 if (!dateVal) return;
