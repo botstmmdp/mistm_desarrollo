@@ -977,6 +977,15 @@
         .blink-alert {
             animation: blink-red 1.5s infinite;
         }
+
+        @keyframes blink-simple {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        .blink-v2 {
+            animation: blink-simple 1s infinite;
+        }
     </style>
 </head>
 
@@ -1327,7 +1336,7 @@
                         </h3>
                     </div>
                     <div
-                        style="width: 65px; height: 65px; flex-shrink: 0; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-left: 10px;">
+                        style="width: 85px; height: 85px; flex-shrink: 0; background: #fff; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-left: 10px;">
                         <img src="logo nuevo.png" alt="STM" style="width: 100%; height: 100%; object-fit: contain;">
                     </div>
                 </div>
@@ -1370,19 +1379,19 @@
                 <!-- Footer del Carnet -->
                 <div style="text-align: center; background: #37306b; margin: 0 -20px; padding: 15px 20px;">
                     <h4
-                        style="margin: 0 0 4px; font-size: 1.05rem; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase;">
-                        Credencial de Afiliado</h4>
+                        style="margin: 0 0 4px; font-size: 1.05rem; font-weight: 900; color: white; letter-spacing: 0.5px; text-transform: uppercase;">
+                        CREDENCIAL DIGITAL DEL AFILIADO</h4>
                     <p style="margin: 0; font-size: 0.65rem; font-weight: 500; color: rgba(255,255,255,0.7);">Moreno
                         4359 • (223) 4723756 • Mar del Plata</p>
-                    <p class="blink-alert"
-                        style="margin: 4px 0 0; font-size: 0.55rem; font-weight: 700; text-transform: uppercase;">Carece
-                        de validez si no se exhibe con DNI</p>
+                    <p class="blink-v2"
+                        style="margin: 10px 0 0; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; background: white; color: #ff0000; padding: 6px 12px; border-radius: 10px; display: inline-block;">
+                        Carece de validez si no se exhibe con DNI</p>
                 </div>
             </div>
-            <div style="background: white; padding: 15px 20px 20px;">
+            <div style="background: white; padding: 15px 20px 25px; display: flex; justify-content: center;">
                 <button onclick="toggleCredencial(false)"
-                    style="width: 100%; padding: 16px; border: none; background: #f1f5f9; color: #475569; border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;">
-                    <i class="fas fa-times-circle"></i> Cerrar Credencial
+                    style="width: 55px; height: 55px; border: none; background: #f1f5f9; color: #475569; border-radius: 50%; cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
         </div>
