@@ -1658,7 +1658,7 @@
 
         let qrcodeInstance = null;
         let credTimerInterval = null;
-        function toggleCredencial(show) {
+        function toggleCredencial(show, isAuto = false) {
             const modal = document.getElementById('modalCredencial');
             if (!modal) return;
 
@@ -1674,7 +1674,7 @@
                     if (countdownEl) countdownEl.innerText = timeLeft;
                     if (timeLeft <= 0) {
                         clearInterval(credTimerInterval);
-                        toggleCredencial(false);
+                        toggleCredencial(false, true);
                     }
                 }, 1000);
 
